@@ -1,0 +1,444 @@
+<head xmlns:float="http://www.w3.org/1999/xhtml">
+    <link href="@{'/new_public/css/bootstrap.min.css'}" rel="stylesheet">
+    <script src="@{'/new_public/js/jquery-2.1.1.js'}"></script>
+    <script src="@{'/new_public/js/bootstrap.min.js'}"></script>
+    <script src="@{'/new_public/js/cron/jquery-1.2.3.pack.js'}"></script>
+    <script src="@{'/new_public/js/cron/jquery.idTabs.min.js'}"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            changeDayLoopEnable();
+            changeHourLoopEnable();
+            changeDayLoopEnable();
+            changeMonthLoopEnable();
+            useWeek();
+        });
+
+        function changeMinLoopEnable() {
+            document.getElementById("minuRadio").checked = false;
+            var checkMins = document.getElementsByName("checkBoxMin");
+            for (var i = 0; i < checkMins.length; i++) {
+                checkMins[i].disabled = "disabled";
+                checkMins[i].checked = false;
+            }
+        }
+
+        function changeHourEnable() {
+            document.getElementById("hourLoop").checked = false;
+            var checkHours = document.getElementsByName("checkBoxHour");
+            for (var i = 0; i < checkHours.length; i++) {
+                checkHours[i].disabled = "";
+            }
+        }
+        function changeHourLoopEnable() {
+            document.getElementById("hourRadio").checked = false;
+            var checkHours = document.getElementsByName("checkBoxHour");
+            for (var i = 0; i < checkHours.length; i++) {
+                checkHours[i].disabled = "disabled";
+                checkHours[i].checked = false;
+            }
+        }
+
+        function changeDayEnable() {
+            document.getElementById("dayLoop").checked = false;
+            var checkDays = document.getElementsByName("checkBoxDay");
+            for (var i = 0; i < checkDays.length; i++) {
+                checkDays[i].disabled = "";
+            }
+        }
+        function changeDayLoopEnable() {
+            document.getElementById("dayRadio").checked = false;
+            var checkDays = document.getElementsByName("checkBoxDay");
+            for (var i = 0; i < checkDays.length; i++) {
+                checkDays[i].disabled = "disabled";
+                checkDays[i].checked = false;
+            }
+        }
+
+        function changeMonthEnable() {
+            document.getElementById("monthLoop").checked = false;
+            var checkMonths = document.getElementsByName("checkBoxMonth");
+            for (var i = 0; i < checkMonths.length; i++) {
+                checkMonths[i].disabled = "";
+            }
+        }
+        function changeMonthLoopEnable() {
+            document.getElementById("monthRadio").checked = false;
+            var checkMonths = document.getElementsByName("checkBoxMonth");
+            for (var i = 0; i < checkMonths.length; i++) {
+                checkMonths[i].disabled = "disabled";
+                checkMonths[i].checked = false;
+            }
+        }
+
+        function changeWeekEnable() {
+            document.getElementById("weekLoop").checked = false;
+            var checkWeeks = document.getElementsByName("checkBoxWeek");
+            for (var i = 0; i < checkWeeks.length; i++) {
+                checkWeeks[i].disabled = "";
+            }
+        }
+        function changeWeekLoopEnable() {
+            document.getElementById("weekLoop").checked = true;
+            document.getElementById("weekRadio").checked = false;
+            var checkWeeks = document.getElementsByName("checkBoxWeek");
+            for (var i = 0; i < checkWeeks.length; i++) {
+                checkWeeks[i].disabled = "disabled";
+                checkWeeks[i].checked = false;
+            }
+        }
+
+        function useWeek() {
+            var userWeekCheck = document.getElementById("useWeek").checked;
+            if (userWeekCheck) {
+                var weekLoop = document.getElementById("weekLoop");
+                var weekRadio = document.getElementById("weekRadio");
+                weekRadio.disabled = "";
+                weekLoop.disabled = "";
+                var checkWeeks = document.getElementsByName("checkBoxWeek");
+                for (var i = 0; i < checkWeeks.length; i++) {
+                    checkWeeks[i].disabled = "";
+                }
+                changeWeekLoopEnable();
+            } else {
+                var weekLoop = document.getElementById("weekLoop");
+                var weekRadio = document.getElementById("weekRadio");
+                weekLoop.disabled = "disabled";
+                weekRadio.disabled = "disabled";
+                var checkWeeks = document.getElementsByName("checkBoxWeek");
+                for (var i = 0; i < checkWeeks.length; i++) {
+                    checkWeeks[i].disabled = "disabled";
+                }
+            }
+        }
+
+        function createCron() {
+            $("#cronsecond").val(0);
+            //设置分
+            var checkedMin = "";
+            var checkMins = document.getElementsByName("checkBoxMin");
+            for (var i = 0; i < checkMins.length; i++) {
+                var checkmin = checkMins[i].checked;
+                if (checkmin) {
+                    if (checkedMin == "") {
+                        checkedMin = checkMins[i].value;
+                    } else {
+                        checkedMin = checkedMin + "," + checkMins[i].value;
+                    }
+                }
+            }
+            document.getElementById("cronminute").value = checkedMin;
+            //设置小时
+            var hourLoopChecked = document.getElementById("hourLoop").checked;
+            if (hourLoopChecked) {
+                document.getElementById("cronhour").value = "*";
+            } else {
+                var checkedHour = "";
+                var checkHours = document.getElementsByName("checkBoxHour");
+                for (var i = 0; i < checkHours.length; i++) {
+                    var checkhour = checkHours[i].checked;
+                    if (checkhour) {
+                        if (checkedHour == "") {
+                            checkedHour = checkHours[i].value;
+                        } else {
+                            checkedHour = checkedHour + "," + checkHours[i].value;
+                        }
+                    }
+                }
+                if (checkedHour == ""){
+                    checkedHour = "*";
+                }
+                document.getElementById("cronhour").value = checkedHour;
+            }
+            //设置天
+            var useWeekCheck = document.getElementById("useWeek").checked;
+            var weekLoopChecked = document.getElementById("weekLoop").checked;
+            if (useWeekCheck) {
+                document.getElementById("cronday").value = "?";
+                if (weekLoopChecked) {
+                    document.getElementById("cronweek").value = "*";
+                } else {
+                    var checkedWeek = "";
+                    var checkWeeks = document.getElementsByName("checkBoxWeek");
+                    for (var i = 0; i < checkWeeks.length; i++) {
+                        var checkweek = checkWeeks[i].checked;
+                        if (checkweek) {
+                            if (checkedWeek == "") {
+                                checkedWeek = checkWeeks[i].value;
+                            } else {
+                                checkedWeek = checkedWeek + "," + checkWeeks[i].value;
+                            }
+                        }
+                    }
+                    if (checkedWeek == ""){
+                        checkedWeek = "*";
+                    }
+                    document.getElementById("cronweek").value = checkedWeek;
+                }
+            } else {
+                document.getElementById("cronweek").value = "?";
+                var dayLoopChecked = document.getElementById("dayLoop").checked;
+                if (dayLoopChecked) {
+                    document.getElementById("cronday").value = "*";
+                } else {
+                    var checkedDay = "";
+                    var checkDays = document.getElementsByName("checkBoxDay");
+                    for (var i = 0; i < checkDays.length; i++) {
+                        var checkday = checkDays[i].checked;
+                        if (checkday) {
+                            if (checkedDay == "") {
+                                checkedDay = checkDays[i].value;
+                            } else {
+                                checkedDay = checkedDay + "," + checkDays[i].value;
+                            }
+                        }
+                    }
+                    if (checkedDay == ""){
+                        checkedDay = "*";
+                    }
+                    document.getElementById("cronday").value = checkedDay;
+                }
+            }
+            //设置月
+            var monthChecked = document.getElementById("monthLoop").checked;
+            if (monthChecked) {
+                document.getElementById("cronmonth").value = "*";
+            } else {
+                var checkedMonth = "";
+                var checkMonths = document.getElementsByName("checkBoxMonth");
+                for (var i = 0; i < checkMonths.length; i++) {
+                    var checkmonth = checkMonths[i].checked;
+                    if (checkmonth) {
+                        if (checkedMonth == "") {
+                            checkedMonth = checkMonths[i].value;
+                        } else {
+                            checkedMonth = checkedMonth + "," + checkMonths[i].value;
+                        }
+                    }
+                }
+                if (checkedMonth == ""){
+                    checkedMonth = "*";
+                }
+                document.getElementById("cronmonth").value = checkedMonth;
+            }
+
+            var secondvalue = replaceSpaces(document.getElementById("cronsecond").value);
+            var minvalue = replaceSpaces(document.getElementById("cronminute").value);
+            var hourvalue = replaceSpaces(document.getElementById("cronhour").value);
+            var dayvalue = replaceSpaces(document.getElementById("cronday").value);
+            var monthvalue = replaceSpaces(document.getElementById("cronmonth").value);
+            var weekvalue = replaceSpaces(document.getElementById("cronweek").value);
+
+            parent.document.getElementById("tJob.T_JOB_SCHEDULES").value = secondvalue + " " + minvalue + " " + hourvalue + " " + dayvalue + " " + monthvalue + " " + weekvalue;
+        }
+        function replaceSpaces(str) {
+            while (str.indexOf(" ") != -1) {
+                str = str.replace(" ", "");
+            }
+            return str;
+        }
+
+
+    </script>
+    <style>
+        .week-css{padding-left: 10px;line-height: 35px;margin:5px 15px;border: 1px solid #ccc;list-style: none; }
+        .week-css li{display: inline-block;padding:0 20px;border-right:1px solid #ccc;color:#000;}
+        .week-css li a{color:#666;text-decoration: none;}
+        .week-css li a:hover{color:#1ab394;}
+        .tabs1{margin:10px 0;line-height:35px;}
+        .tab-div{padding:0 25px;border:1px solid #ccc;margin:5px 15px}
+        .tab-div table tr td{width:50px;height:25px;text-align: center;}
+        .tab-div
+    </style>
+</head>
+<body>
+<div id="usual2" class="usual">
+    <ul class="week-css">
+        <a href="#tabs2"><li>按时</li></a>
+        <a href="#tabs3"><li>按天</li></a>
+        <a href="#tabs4"><li>按月</li></a>
+        <a href="#tabs5"><li>按周</li></a>
+    </ul>
+    <div id="tabs2" id="tabs1"  class="tabs1">
+        <div style="font-size: 12px;border: 1px solid #ccc;margin:5px 15px;padding:2px 25px;">
+            <input type="radio" name="hourLoop" id="hourLoop" onclick="changeHourLoopEnable()" checked="checked"/>&nbsp;每小时&nbsp;&nbsp;
+            <input type="radio" name="hourRadio" id="hourRadio" onclick="changeHourEnable()"/>&nbsp;自定义
+        </div>
+        <div  class="tab-div" style="font-size: 12px;font-family: sans-serif;">
+            <table>
+                <tr>
+                    <td><h6>时(多选)</h6></td>
+                    <td><input type="checkbox" value="0" name="checkBoxHour"/>00</td>
+                    <td><input type="checkbox" value="1" name="checkBoxHour"/>01</td>
+                    <td><input type="checkbox" value="2" name="checkBoxHour"/>02</td>
+                    <td><input type="checkbox" value="3" name="checkBoxHour"/>03</td>
+                    <td><input type="checkbox" value="4" name="checkBoxHour"/>04</td>
+                    <td><input type="checkbox" value="5" name="checkBoxHour"/>05</td>
+                    <td><input type="checkbox" value="6" name="checkBoxHour"/>06</td>
+                    <td><input type="checkbox" value="7" name="checkBoxHour"/>07</td>
+                    <td><input type="checkbox" value="8" name="checkBoxHour"/>08</td>
+                    <td><input type="checkbox" value="9" name="checkBoxHour"/>09</td>
+                    <td><input type="checkbox" value="10" name="checkBoxHour"/>10</td>
+                    <td><input type="checkbox" value="11" name="checkBoxHour"/>11</td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" value="12" name="checkBoxHour"/>12</td>
+                    <td><input type="checkbox" value="13" name="checkBoxHour"/>13</td>
+                    <td><input type="checkbox" value="14" name="checkBoxHour"/>14</td>
+                    <td><input type="checkbox" value="15" name="checkBoxHour"/>15</td>
+                    <td><input type="checkbox" value="16" name="checkBoxHour"/>16</td>
+                    <td><input type="checkbox" value="17" name="checkBoxHour"/>17</td>
+                    <td><input type="checkbox" value="18" name="checkBoxHour"/>18</td>
+                    <td><input type="checkbox" value="19" name="checkBoxHour"/>19</td>
+                    <td><input type="checkbox" value="20" name="checkBoxHour"/>20</td>
+                    <td><input type="checkbox" value="21" name="checkBoxHour"/>21</td>
+                    <td><input type="checkbox" value="22" name="checkBoxHour"/>22</td>
+                    <td><input type="checkbox" value="23" name="checkBoxHour"/>23</td>
+                </tr>
+                <tr>
+                    <td><h6>分(单选)</h6></td>
+                    <td><input type="radio" value="0" name="checkBoxMin" checked/>00</td>
+                    <td><input type="radio" value="10" name="checkBoxMin"/>10</td>
+                    <td><input type="radio" value="20" name="checkBoxMin"/>20</td>
+                    <td><input type="radio" value="30" name="checkBoxMin"/>30</td>
+                    <td><input type="radio" value="40" name="checkBoxMin"/>40</td>
+                    <td><input type="radio" value="50" name="checkBoxMin"/>50</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div id="tabs3" id="tabs1" class="tabs1">
+        <div style="font-size: 12px;padding:2px 25px;border:1px solid #ccc;margin:5px 15px">
+            <input type="radio" name="dayLoop" id="dayLoop" onclick="changeDayLoopEnable()" checked="checked"/>&nbsp;每天&nbsp;&nbsp;
+            <input type="radio" name="dayRadio" id="dayRadio" onclick="changeDayEnable()"/>&nbsp;自定义
+        </div>
+        <div class="tab-div" style="font-size:12px;font-family: sans-serif;">
+            <table>
+                <tr>
+                    <td><h6>日(多选)</h6></td>
+                    <td><input type="checkbox" value="1" name="checkBoxDay"/>1</td>
+                    <td><input type="checkbox" value="2" name="checkBoxDay"/>2</td>
+                    <td><input type="checkbox" value="3" name="checkBoxDay"/>3</td>
+                    <td><input type="checkbox" value="4" name="checkBoxDay"/>4</td>
+                    <td><input type="checkbox" value="5" name="checkBoxDay"/>5</td>
+                    <td><input type="checkbox" value="6" name="checkBoxDay"/>6</td>
+                    <td><input type="checkbox" value="7" name="checkBoxDay"/>7</td>
+                    <td><input type="checkbox" value="8" name="checkBoxDay"/>8</td>
+                    <td><input type="checkbox" value="9" name="checkBoxDay"/>9</td>
+                    <td><input type="checkbox" value="10" name="checkBoxDay"/>10</td>
+                    <td><input type="checkbox" value="11" name="checkBoxDay"/>11</td>
+                    <td><input type="checkbox" value="12" name="checkBoxDay"/>12</td>
+                    <td><input type="checkbox" value="13" name="checkBoxDay"/>13</td>
+                    <td><input type="checkbox" value="14" name="checkBoxDay"/>14</td>
+                    <td><input type="checkbox" value="15" name="checkBoxDay"/>15</td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" value="16" name="checkBoxDay"/>16</td>
+                    <td><input type="checkbox" value="17" name="checkBoxDay"/>17</td>
+                    <td><input type="checkbox" value="18" name="checkBoxDay"/>18</td>
+                    <td><input type="checkbox" value="19" name="checkBoxDay"/>19</td>
+                    <td><input type="checkbox" value="20" name="checkBoxDay"/>20</td>
+                    <td><input type="checkbox" value="21" name="checkBoxDay"/>21</td>
+                    <td><input type="checkbox" value="22" name="checkBoxDay"/>22</td>
+                    <td><input type="checkbox" value="23" name="checkBoxDay"/>23</td>
+                    <td><input type="checkbox" value="24" name="checkBoxDay"/>24</td>
+                    <td><input type="checkbox" value="25" name="checkBoxDay"/>25</td>
+                    <td><input type="checkbox" value="26" name="checkBoxDay"/>26</td>
+                    <td><input type="checkbox" value="27" name="checkBoxDay"/>27</td>
+                    <td><input type="checkbox" value="28" name="checkBoxDay"/>28</td>
+                    <td><input type="checkbox" value="29" name="checkBoxDay"/>29</td>
+                    <td><input type="checkbox" value="30" name="checkBoxDay"/>30</td>
+                    <td><input type="checkbox" value="31" name="checkBoxDay"/>31</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div id="tabs4" id="tabs1" class="tabs1">
+        <div style="font-size: 12px;padding:2px 25px;border:1px solid #ccc;margin:5px 15px">
+            <input type="radio" name="monthLoop" id="monthLoop" onclick="changeMonthLoopEnable()" checked="checked"/>&nbsp;每月&nbsp;&nbsp;
+            <input type="radio" name="monthRadio" id="monthRadio" onclick="changeMonthEnable()"/>&nbsp;自定义
+        </div>
+        <div  class="tab-div" style="font-size: 12px;font-family: sans-serif;">
+            <table>
+                <tr>
+                    <td><h6>月(多选)</h6></td>
+                    <td><input type="checkbox" value="1" name="checkBoxMonth"/>1</td>
+                    <td><input type="checkbox" value="2" name="checkBoxMonth"/>2</td>
+                    <td><input type="checkbox" value="3" name="checkBoxMonth"/>3</td>
+                    <td><input type="checkbox" value="4" name="checkBoxMonth"/>4</td>
+                    <td><input type="checkbox" value="5" name="checkBoxMonth"/>5</td>
+                    <td><input type="checkbox" value="6" name="checkBoxMonth"/>6</td>
+                    <td><input type="checkbox" value="7" name="checkBoxMonth"/>7</td>
+                    <td><input type="checkbox" value="8" name="checkBoxMonth"/>8</td>
+                    <td><input type="checkbox" value="9" name="checkBoxMonth"/>9</td>
+                    <td><input type="checkbox" value="10" name="checkBoxMonth"/>10</td>
+                    <td><input type="checkbox" value="11" name="checkBoxMonth"/>11</td>
+                    <td><input type="checkbox" value="12" name="checkBoxMonth"/>12</td>
+                </tr>
+            </table>
+        </div>
+        </fieldset>
+    </div>
+    <div id="tabs5" id="tabs1" class="tabs1">
+        <div style="font-size:12px;padding:2px 25px;border:1px solid #ccc;margin:5px 15px">
+            <input type="checkbox" name="useWeek" id="useWeek" onclick="useWeek()"/>使用周 说明:周和天不能同时选（选择了周后天变成?号），规定一周从周日开始所以显示周日为1 周一为2 依此类推。
+        </div>
+        <div style="font-size:12px;">
+            <div style="font-size:12px;padding:2px 25px;border:1px solid #ccc;margin:5px 15px">
+                <input type="radio" name="weekLoop" id="weekLoop" onclick="changeWeekLoopEnable()"/>&nbsp;每周&nbsp;&nbsp;
+                <input type="radio" name="weekRadio" id="weekRadio" onclick="changeWeekEnable()"/>&nbsp;自定义
+            </div>
+            <fieldset>
+                <div class="tab-div" style="font-size:12px;height:37px;padding-top: 5px">
+                    <table>
+                        <tr>
+                            <td><h6>周(多选)</h6></td>
+                            <td><input type="checkbox" value="1" name="checkBoxWeek"/>周日</td>
+                            <td><input type="checkbox" value="2" name="checkBoxWeek"/>周一</td>
+                            <td><input type="checkbox" value="3" name="checkBoxWeek"/>周二</td>
+                            <td><input type="checkbox" value="4" name="checkBoxWeek"/>周三</td>
+                            <td><input type="checkbox" value="5" name="checkBoxWeek"/>周四</td>
+                            <td><input type="checkbox" value="6" name="checkBoxWeek"/>周五</td>
+                            <td><input type="checkbox" value="7" name="checkBoxWeek"/>周六</td>
+                        </tr>
+                    </table>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <!-- CORN表达式 -->
+    <div class="tab-div">
+        <table width="100%" style=font-size:12px;padding-left:30px;height:35px;line-heigt:35px">
+            <tbody>
+            <tr>
+                <td >
+                    字段:
+                </td>
+                <td>
+                    &nbsp;&nbsp;<input id="cronsecond" type="text" style="width: 70px;" readonly = "readonly"/>秒
+                </td>
+                <td>
+                    &nbsp;&nbsp;<input id="cronminute" type="text" style="width: 70px;" readonly = "readonly"/>分
+                </td>
+                <td>
+                    &nbsp;&nbsp;<input id="cronhour" type="text" style="width: 70px;" readonly = "readonly"/>时
+                </td>
+                <td>
+                    &nbsp;&nbsp;<input id="cronday" type="text" style="width: 70px;" readonly = "readonly"/>日
+                </td>
+                <td>
+                    &nbsp;&nbsp;<input id="cronmonth" type="text" style="width: 70px;" readonly = "readonly"/>月
+                </td>
+                <td>
+                    &nbsp;&nbsp;<input id="cronweek" type="text" style="width: 70px;" readonly = "readonly"/>周
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <input type="button" value="生成计划" onclick="createCron()" class="btn btn-primary" style="margin: 5px 25px;background: #1ab394;border: 1px solid #1ab394"/>
+    <script type="text/javascript">
+        $("#usual2 ul").idTabs("tabs2");
+    </script>
+
+</div>
+</body>

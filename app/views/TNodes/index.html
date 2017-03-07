@@ -1,0 +1,449 @@
+#{extends 'main.html' /} #{set title:'IStorm Patrol' /}
+
+
+<div class="row wrapper border-bottom white-bg page-heading">
+	<div class="col-lg-10">
+	 <h2 style="font-size: 0px;"></h2>
+		<ol class="breadcrumb">
+			<li><a href="@{Application.index()}">首页</a></li>
+			<li><a>巡检对象管理</a></li>
+			<li class="active"><strong>设备管理</strong></li>
+		</ol>
+	</div>
+	<div class="col-lg-2"></div>
+</div>
+
+<div class="row">
+	<div class="col-sm-12">
+		<div class="ibox">
+			<div class="ibox-title">
+				<h5>设备管理</h5>
+				<div class="ibox-tools">
+					<a class="collapse-link"> <i class="fa fa-chevron-up"></i>
+					</a>
+				</div>
+			</div>
+			<div class="ibox-content">
+				<table class="table table-bordered">
+					<tbody>
+						<tr>
+                            <form class="form-control" action="@{TNodes.saveFile()}" method="post" enctype="multipart/form-data">
+                                <td width="10%" align="right">
+                                   <span class="sel-tit">导入设备：</span>
+                                </td>
+                                <td width="20%">
+                                    <input type="file" name="file" id="file" class="form-control">
+                                </td>
+                                <td>
+                                    <input type="submit" value="导入" class="btn btn-primary" onclick="return judgeFileType()" id="btnImport">
+                                </td>
+                                <td colspan="4">
+                                	<a href="@{'/public/Template/模板.csv'}" class="btn btn-primary">下载模板</a>
+                                </td>
+                            </form>
+
+                        </tr>
+						<tr>
+							<td width="10%" align="right"><span class="sel-tit">设备名称：</span></td>
+							<td width="20%"><input type="text" name="T_NODE_NAME"
+								id="T_NODE_NAMESearch" maxlength="20" class="form-control"></td>
+							<td width="10%" align="right"><span class="sel-tit">IP地址：</span></td>
+							<td width="20%"><input type="text" name="T_NODE_IP"
+								id="T_NODE_IPSearch" maxlength="15" class="form-control"></td>
+							<td width="11%" align="right"><span class="sel-tit">设备负责人：</span></td>
+							<td width="20%"><select id="T_NODE_CONTACTSSearch"
+								name="T_NODE_CONTACTS" maxlength="20" class="form-control">
+							</select></td>
+							<td>
+								<input type="button" name="name" value="新增"
+								class="btn btn-primary" onclick="newNode()" id="btnNewNode">
+							</td>
+						</tr>
+						<tr>
+							<td width="10%" align="right"><span class="sel-tit">机房：</span></td>
+							<td width="20%"><input type="text" name="T_NODE_ROOM"
+								id="T_NODE_ROOMSearch" maxlength="20" class="form-control"></td>
+
+							<td width="10%" align="right"><span class="sel-tit">部门：</span></td>
+							<td width="20%"><input type="text" name="T_NODE_DEPARTMENT"
+								id="T_NODE_DEPARTMENTSearch" maxlength="20" class="form-control" required>
+							</td>
+							<td width="10%" align="right"><span class="sel-tit">操作系统：</span></td>
+							<td><select id="T_NODE_OSSearch" maxlength="20" class="form-control"
+								name="T_NODE_OS">
+                                    <option value="">全部</option>>
+									<option value="win2008">win2008</option>
+									<option value="win2012">win2012</option>
+									<option value="linux">linux</option>
+									<option value="aix">aix</option>
+									<option value="unix">unix</option>
+							</select>
+							</td>
+							<td><input type="button" name="name" value="查询"
+								class="btn btn-primary" onclick="queryNodeInfo()"></td>
+						</tr>
+					</tbody>
+				</table>
+				<iframe id="tNodeList" src="@{TNodes.list()}"
+					style="width: 100%; height: 800px; border: 0px;"></iframe>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<div id="modal-form" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addJobLabel" style="display: none;">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">新增设备</h4>
+            </div>
+            <div class="modal-body">
+                <form id="createNode" class="form-horizontal" action="@{TNodes.saveTNode()}"  method="post" role="form">
+                    <div class="row">
+                        <div class="col-sm-12">
+                        <table class="table table-bordered">
+                     	<tbody>
+							<tr>
+								<td width="20%">设备名称：</td>
+								<td width="20%"><input type="text" maxlength="20" class="form-control"
+									id="T_NODE_NAME" name="tNode.T_NODE_NAME" onblur="onlyName()"> </td>
+								<td width="20%">IP地址：</td>
+								<td width="20%"><input type="text" maxlength="15" class="form-control"
+									id="T_NODE_IP" name="tNode.T_NODE_IP" onblur="onlyName2()"> </td>
+							</tr>
+
+							<tr>
+								<td width="20%">登入账号：</td>
+								<td width="20%"><input type="text" maxlength="20" class="form-control"
+									id="T_NODE_ACCOUNT" name="tNode.T_NODE_ACCOUNT"></td>
+								<td width="20%">登入密码：</td>
+								<td width="20%"><input type="password" maxlength="20" class="form-control"
+									id="T_NODE_PWD" name="tNode.T_NODE_PWD"></td>
+							<tr>
+								<td width="20%">登入方式：</td>
+								<td width="20%"><select class="form-control"
+									id="T_NODE_LOGINTYPE" name="tNode.T_NODE_LOGINTYPE">
+										<option value="powershell">powershell</option>
+										<option value="ssh">ssh</option>
+										<option value="telnet">telnet</option>
+								</select></td>
+								<td width="20%">业务系统：</td>
+								<td width="20%">
+								<select id="T_NODE_SYSTEM" name="tNode.T_NODE_SYSTEM" class="form-control"></select>
+									</td>
+							</tr>
+							<tr>
+								<td width="20%">设备负责人：</td>
+								<td width="20%"><select class="form-control" id="T_NODE_CONTACTS" name="tNode.T_NODE_CONTACTS"></select></select></td>
+								<td width="20%">操作系统：</td>
+								<td width="20%"><select class="form-control" id="T_NODE_OS"
+									name="tNode.T_NODE_OS">
+								</select></td>
+							</tr>
+							<tr>
+								<td width="20%">厂商：</td>
+								<td width="20%">
+								<select class="form-control"
+									id="T_NODE_VENDOR" name="tNode.T_NODE_VENDOR">
+								</select></td>
+								<td width="20%">设备类型：</td>
+								<td width="20%"><select class="form-control"
+									id="T_NODE_DEVICETYPE" name="tNode.T_NODE_DEVICETYPE">
+										<option value="x86物理机">x86物理机</option>
+										<option value="小型机">小型机</option>
+										<option value="VMWare">VMWare</option>
+										<option value="Hyper-V">Hyper-V</option>
+										<option value="交换机">交换机</option>
+										<option value="带外管理卡">带外管理卡</option>
+								</select></td>
+							</tr>
+							<tr>
+								<td width="20%">上传脚本保存目录：</td>
+								<td width="20%"><input type="text" maxlength="20" class="form-control"
+									id="T_NODE_LOCALPATH" name="tNode.T_NODE_LOCALPATH"></td>
+								<td width="20%">上传脚本方式：</td>
+								<td width="20%"><select class="form-control"
+									id="T_NODE_UPLOADTYPE" name="tNode.T_NODE_UPLOADTYPE">
+										<option value="FTP">FTP</option>
+										<option value="SFTP">SFTP</option>
+								</select></td>
+							</tr>
+							<tr>
+								<td width="20%">机房：</td>
+								<td width="20%"><input type="text" maxlength="20" class="form-control"
+									id="T_NODE_ROOM" name="tNode.T_NODE_ROOM"></td>
+								<td width="20%">序列号：</td>
+								<td width="20%"><input type="text" maxlength="20" class="form-control"
+									id="T_NODE_SN" name="tNode.T_NODE_SN"></td>
+							</tr>
+							<tr>
+								<td width="20%">型号：</td>
+								<td width="20%"><input type="text" maxlength="20" class="form-control"
+									id="T_NODE_MODEL" name="tNode.T_NODE_MODEL"></td>
+								<td width="20%">部门：</td>
+								<td width="20%">
+								<select class="form-control" id="T_NODE_DEPARTMENT" name="tNode.T_NODE_DEPARTMENT">
+								</select>
+							</tr>
+							<tr>
+								<td colspan="4" class=" text-center">
+									<button class="btn btn-primary"
+										onclick="return submitValidate()">确定</button>
+									<button class="btn btn-primary" onclick="return clearValue()">清空</button>
+								</td>
+							</tr>
+						</tbody>
+                    	</table>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+//清空
+clearValue = function(){
+	$("#createNode")[0].reset();
+
+    return false;
+}
+
+judgeFileType= function(){
+  var filename = $("#file").val();
+  if (filename=="") {
+    toastr.error('未选择任何文件！');
+    return false;
+  }
+  if (filename!="") {
+    var fileNames = filename.split('.');
+    if(fileNames.length<=1)
+    {
+    toastr.error('所选文件没有后缀名！');
+    }else {
+      var er = fileNames[fileNames.length-1];
+      if(!(er == "csv")){
+        toastr.error('文件类型不对！');
+        return false;
+      }
+    }
+    return true;
+  }
+
+
+  return false;
+}
+	 newNode = function(){
+    	document.getElementById("createNode").reset();
+        $('#modal-form').modal('show');
+    }
+
+    // 设置唯一
+    onlyName = function(){
+    	var url = "@{TNodes.getTNodes()}";
+    	$.post(url,function(data){
+    		var myData = eval('(' + data + ')');
+    		for(var i=0;i<myData.length;i++)
+    		{
+    			if($("#T_NODE_NAME").val() == myData[i].T_NODE_NAME){
+    				toastr.error('设备名称已经存在，请更换名称！ ');
+    			}
+    		}
+    	});
+    }
+
+    onlyName2 = function(){
+    	var url2 = "@{TNodes.getTNodes()}";
+    	$.post(url2,function(data){
+    		var myData = eval('(' + data + ')');
+    		for(var i=0;i<myData.length;i++)
+    		{
+    			if($("#T_NODE_IP").val() == myData[i].T_NODE_IP){
+    				toastr.error('设备IP已经存在，请更换名称!  ');
+    			}
+    		}
+    	});
+    }
+
+
+
+    <!-- 查询功能 -->
+	function queryNodeInfo() {
+
+		var T_NODE_NAME = $("#T_NODE_NAMESearch").val();
+		var T_NODE_IP = $("#T_NODE_IPSearch").val();
+		var T_NODE_OS = $("#T_NODE_OSSearch").val();
+		var T_NODE_CONTACTS = $("#T_NODE_CONTACTSSearch").val();
+		var T_NODE_DEPARTMENT = $("#T_NODE_DEPARTMENTSearch").val();
+		var T_NODE_ROOM = $("#T_NODE_ROOMSearch").val();
+		document.getElementById('tNodeList').src = "@{TNodes.list()}?T_NODE_NAME=" + T_NODE_NAME
+				+"&T_NODE_IP=" + T_NODE_IP
+				+ "&T_NODE_OS=" + T_NODE_OS
+				+ "&T_NODE_CONTACTS=" + T_NODE_CONTACTS
+				+ "&T_NODE_DEPARTMENT=" + T_NODE_DEPARTMENT
+				+ "&T_NODE_ROOM=" + T_NODE_ROOM;
+
+		var flag = true;
+    	var obj = $("#T_NODE_IPSearch").val();
+
+    	if(obj != ''){
+    		var val = /^(?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))$/;
+			var vald = val.test(obj);
+			if (vald==false) {
+				toastr.error('IP地址不符合要求！');
+				flag = false;
+			}
+    	}
+
+	}
+
+
+
+
+<!-- 设置T_NODE_NAME和T_NODE_IP不能为空-->
+	submitValidate = function() {
+		var flag= true;
+
+		var obj = $("#T_NODE_ACCOUNT").val();
+		if(obj == ''){
+			toastr.error('登录帐号不能为空！ ');
+			flag = false;
+		}
+
+		var obj = $("#T_NODE_NAME").val();
+		if (obj == '') {
+			toastr.error('设备名称不能为空！');
+			flag = false;
+		}
+
+		var obj = $("#T_NODE_PWD").val();
+		if(obj == ''){
+			toastr.error('登入密码不能为空！ ');
+			flag = false;
+		}
+
+		var obj = $("#T_NODE_IP").val();
+		if(obj == ''){
+			toastr.error('IP地址不能为空！');
+			flag = false;
+		}else{
+			var val = /^(?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))$/;
+			var vald = val.test(obj);
+			if (vald==false) {
+				toastr.error('IP地址不符合要求！');
+				flag = false;
+			}
+		}
+
+		 var url = "@{TNodes.getTNodes()}";
+		$.ajax({
+          type : "post",
+          url : url,
+          async : false,
+          success : function(data){
+            var myData = eval('(' + data + ')');
+                for (var i = 0; i < myData.length; i++) {
+                	if ( $("#T_NODE_NAME").val()==myData[i].T_NODE_NAME) {
+                		toastr.error('设备名称已存在，请更换名称!');
+                		flag = false;
+                	}
+                	if ( $("#T_NODE_IP").val()==myData[i].T_NODE_IP) {
+                		toastr.error('设备IP已存在，请更换IP!');
+                		flag = false;
+                	}
+                }
+          }
+          });
+
+	return flag;
+
+	}
+function licenseLimit() {
+	$("#btnNewNode").attr("disabled", false);
+	$("#btnImport").attr("disabled", false);
+
+		var url1 = "@{TNodes.getTNodesLength()}";
+
+		$.post(url1, function(data) {
+			var myData = eval('(' + data + ')');
+				var sl=myData.TNodesLength;
+				var status=myData.LicenseStatus;
+				if (sl>=10&&status!="1") {
+						$("#btnNewNode").attr("disabled", true);
+						$("#btnImport").attr("disabled", true);
+						toastr.error('未验证，只能添加十个设备！');
+				}
+		});
+}
+
+	<!--在页面展示下拉选择-->
+	 $(document).ready(
+		        function() {
+
+		            var url2 = "@{TNodes.getUser()}"
+		            var url3 = "@{TNodes.getT_NODE_DEPARTMENT()}"
+		            var url4 = "@{TNodes.getT_NODE_SYSTEM()}"
+		            var url5 = "@{TNodes.getT_NODE_VENDOR()}"
+		            var url6 = "@{TNodes.getT_NODE_OS()}"
+
+		            $.post(url3, function(data) {
+                var myData = eval('(' + data + ')');
+                opt = '';
+                opt+="<option value=''>未选择</option>";
+                for (var i = 0; i < myData.length; i++) {
+                    opt += "<option value='" + myData[i].T_NODE_DEPARTMENT + "'>" + myData[i].T_NODE_DEPARTMENT + "</option>";
+                }
+                $("#T_NODE_DEPARTMENT").html(opt);
+            });
+		            $.post(url4, function(data) {
+                var myData = eval('(' + data + ')');
+                opt = '';
+
+                for (var i = 0; i < myData.length; i++) {
+                    opt += "<option value='" + myData[i].T_NODE_SYSTEM + "'>" + myData[i].T_NODE_SYSTEM + "</option>";
+                }
+                $("#T_NODE_SYSTEM").html(opt);
+            });
+		            $.post(url5, function(data) {
+                var myData = eval('(' + data + ')');
+                opt = '';
+                opt+="<option value=''>未选择</option>";
+                for (var i = 0; i < myData.length; i++) {
+                    opt += "<option value='" + myData[i].T_NODE_VENDOR + "'>" + myData[i].T_NODE_VENDOR + "</option>";
+                }
+                $("#T_NODE_VENDOR").html(opt);
+            });
+
+		            $.post(url6, function(data) {
+                var myData = eval('(' + data + ')');
+                opt = '';
+
+                for (var i = 0; i < myData.length; i++) {
+                    opt += "<option value='" + myData[i].T_NODE_OS + "'>" + myData[i].T_NODE_OS + "</option>";
+                }
+                $("#T_NODE_OS").html(opt);
+            });
+
+
+		             $.post(url2, function(data) {
+                var myData = eval('(' + data + ')');
+                opt = '';
+                opt+="<option value=''>全部</option>";
+                for (var i = 0; i < myData.length; i++) {
+                    opt += "<option value='" + myData[i].T_USER_DISPLAY_NAME + "'>" + myData[i].T_USER_DISPLAY_NAME + "</option>";
+                }
+                $("#T_NODE_CONTACTSSearch").html(opt);
+                $("#T_NODE_CONTACTS").html(opt);
+            });
+
+
+
+
+
+		        });
+</script>

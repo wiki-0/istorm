@@ -1,0 +1,161 @@
+#{extends 'main.html' /} #{set title:'' /}
+<div class="row wrapper border-bottom white-bg page-heading">
+	<div class="col-lg-10">
+		<h2 style="font-size: 0px;"></h2>
+		<ol class="breadcrumb">
+			<li><a href="@{Application.index()}">首页</a></li>
+			<li class="active"><strong>虚拟主机</strong></li>
+		</ol>
+	</div>
+	<div class="col-lg-2"></div>
+</div>
+
+<div class="row">
+	<div class="col-sm-12">
+		<div class="ibox">
+			<div class="ibox-title">
+				<h5>查询条件</h5>
+				<div class="ibox-tools"></div>
+			</div>
+			<div class="ibox-content">
+				<div class="row">
+                    <table class="table table-bordered">
+					<tbody>
+						<tr>
+							<td width="10%" align="right"><span class="sel-tit">虚拟主机IP地址：</span></td>
+							<td width="25%">
+								 <input type="text" name="xmlName" id="ipName" class="form-control" maxlength="20">
+							</td>
+							<td width="10%" align="right"><span class="sel-tit">状态：</span></td>
+							<td width="25%">
+								<select  style="width: 100%; height:34px; font-family: 'Microsoft YaHei'; font-size: 16px;" id="state">
+									<option>开机</option>
+									<option>关机</option>
+									<option>挂起</option>
+								</select>
+							</td>
+							<td width="20%" align="center">
+								<button id="synchrBtn" class="btn btn-primary" style="margin-left:30px;width:60px;position: relative;left: -10px">同步</button>
+								<button id="queryBtn" class="btn btn-primary" style="width:60px;position: relative;left: -10px">查询</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+                </div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-sm-12">
+		<div class="ibox">
+			<div class="ibox-title">
+				<h5>虚拟主机状态</h5>
+				<div class="ibox-tools">
+					<a class="collapse-link"> <i class="fa fa-chevron-up"></i></a> <a
+						class="collapse-link"> </a>
+				</div>
+			</div>
+			<div class="ibox-content">
+				<div class="ibox-content">
+					<div id="crudListTable">
+					#{crud.table fields:['虚拟主机IP地址','名称','状态'] } #{/crud.table}</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<script type="text/javascript">
+
+	$('#queryBtn').click(function() {
+		if(!queryIp()){
+			$('#queryBtn').attr("disabled", false);
+			return false;
+		}
+		getResultList();
+	});
+
+	var resultDataTable;
+	function getResultList(){
+		var IPaddress = $("#ipName").val();
+		var state = $("#state").val();
+		var $searchResult = $('#crudListTable table');
+	    if (resultDataTable) {
+	        resultDataTable.fnClearTable(false);
+	        $searchResult.dataTable().fnDestroy();
+	    }  else {
+	        $searchResult.show();
+	    }
+	    resultDataTable = $('#crudListTable table').dataTable({
+	        "bProcessing": true,
+	        "bServerSide": false,
+	        "iDisplayLength": 20,
+	        "bLengthChange": false,
+        	"sPaginationType":"full_numbers",
+        	"oLanguage": {
+            	"sZeroRecords": "没有任何数据",
+            	"sSearch":"查询 ",
+            	"oPaginate": {
+                	"sFirst":"首页",
+                	"sPrevious":"上一页",
+                	"sNext":"下一页",
+                	"sLast":"最后一页"
+            	}
+        	},
+        	"sAjaxSource": '/VCenterConfigs/virtualList?IPaddress=' + IPaddress + '&state=' + state,
+        	"fnServerParams": function ( aoData ) {
+            	$(".dataTables_info").hide();
+            	aoData.push( { "name": "Fields", "value": "IPaddress,name,state"} );
+        	}
+    	});
+	}
+	
+	function queryIp(){
+		var ipAddress = $("#ipName").val();
+		var re = /^(?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))$/
+		if (re.test(ipAddress) || ipAddress == '') {
+		    return true;
+		} else {
+			toastr.options = {
+				"closeButton": true,
+				"debug": false,
+				"progressBar": true,
+				"preventDuplicates": false,
+				"positionClass": "toast-top-right",
+				"onclick": null,
+				"showDuration": "400",
+				"hideDuration": "1000",
+				"timeOut": "7000",
+				"extendedTimeOut": "1000",
+				"showEasing": "swing",
+				"hideEasing": "linear",
+				"showMethod": "fadeIn",
+				"hideMethod": "fadeOut"
+			}
+			toastr.error('IP地址格式有误！','警告：')
+			return false;
+		}
+	}
+	
+	$('#synchrBtn').click(function() {
+		$.ajax({
+	       type : "get",
+	       url : "/VCenterConfigs/virtualSynchr",
+	       dataType:"text",
+	       data:{},
+	       success : function(data){
+	           	if(data == 'OK'){
+	             	toastr.success("同步成功");
+	             	flag = true;
+		        }
+	       	},
+		  	error:function(){
+				alert("错误");
+			}
+		});
+	});
+	
+</script>

@@ -1,0 +1,303 @@
+#{extends 'main.html' /}
+<style type="text/css"> 
+table {width:100%;} 
+
+</style> 
+<div class="row wrapper border-bottom white-bg page-heading">
+	   <div class="col-lg-10">
+	        <h2 style="font-size: 0px;"></h2>
+	        <ol class="breadcrumb">
+	            <li><a href="@{Application.index()}">首页</a></li>
+	            <li><a>系统管理</a></li>
+	            <li class="active"><strong>用户管理</strong></li>
+	        </ol>
+	    </div>
+	    <div class="col-lg-2"></div>
+	</div>
+<div class="row" >
+	<div class="col-sm-12">
+	</div>
+</div>
+<div class="row" >
+<div class="col-sm-12">
+	<div class="panel">
+		<div class="ibox-title">
+		<h5>用户列表</h5>
+		</div>
+		<div class="ibox-content">
+			<table class="table table-bordered">
+				<tbody>
+					<tr>
+						<td width="8%" align="center"><span class="sel-tit">用户账户：</span></td>
+						<td width="20%">
+							<input type="text" maxlength=20 name="selectName" id="selectName" class="form-control"  />
+						</td>
+						<td width="8%" align="center"><span class="sel-tit">显示名称：</span></td>
+						<td width="20%">
+							<input type="text" maxlength=20 name="selectDisplayName" id="selectDisplayName" class="form-control"  />
+						</td>
+						<td width="8%" align="center"><span class="sel-tit">所属部门：</span></td>
+						<td width="20%">
+							<!-- <input type="text" maxlength=20 name="selectDepartment" id="selectDepartment" class="form-control"  /> -->
+							<select maxlength=20 name="selectDepartment" id="selectDepartment" class="form-control">
+							</select>
+						</td>
+						<td>&nbsp;&nbsp;
+							<button class="btn btn-primary" id="queryInfo" onclick="queryProcess()">查询</button>&nbsp;
+							<button class="btn btn-primary" data-toggle="modal"
+								data-target="#modal-blurred-bg" onclick="reset()">&{'Insert'}</button>
+						</td>
+						
+					</tr>
+				</tbody>
+			</table>
+			<div class="panel-heading">
+			<table>
+			<td class="panel-heading-controls" style="padding-right:50px; text-align:right">
+			
+			</td>
+			</table>
+		</div>
+		
+			<div class="table-info">
+			<iframe id="userList" src="@{Users.list()}" style="width:100%;border:0px;height:800px;"></iframe>
+			</div>
+		
+		</div>
+	</div>
+</div>
+</div>
+
+<div id="modal-blurred-bg" class="modal fade modal-blur" tabindex="-1"
+	role="dialog" style="display: none;">
+		<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="table">
+				<div class="table-header" style="margin-top:20px;margin-right:15px">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<div class="table-caption" style="padding:10px;font-size:14px;margin-top:-10px;font-weight: bold;">&{'InsertUser'}</div>
+
+				</div>
+				<form action="@{Users.saveUser()}" method="post">
+				<table class="table table-condensed table-bordered">
+					<tbody>
+						<tr>
+							<td width="10%">&{'UserName'}：</td>
+							<td width="40%"><input type="text" maxlength=20 class="form-control"
+								 id="UserName" name="T_USER_NAME">
+								<label id="UserNameInput" style="display:none;"><font color="red">*必须输入英文,数字或下划线并以英文或下划线开头</font></label>
+								</td>
+							<td width="10%">用户密码：</td>
+							<td width="40%"><input type="password" maxlength=20 class="form-control"
+								 id="Password" name="T_USER_PASSWORD">
+								<label id="PasswordInput" style="display:none;"><font color="red">*必须输入</font></label>
+								</td>
+						</tr>
+						<tr>
+							<td>&{'DisplayName'}：</td>
+							<td><input type="text" maxlength=20 class="form-control"
+								id="DisplayName" name="T_USER_DISPLAY_NAME">
+								<label id="DisplayNameInput" style="display:none;"><font color="red">*必须输入</font></label>
+								</td>
+								
+							<td>所属部门：</td>
+							<td>
+								<!-- <input type="text" maxlength=20 class="form-control" id="Department" name="T_USER_DEPARTMENT"> -->
+								<select maxlength=20 class="form-control" id="Department" name="T_USER_DEPARTMENT">
+								<option>未选择</option>
+								#{list items: models.DataDictionary.examine(), as:'info'}
+									<option>${info.name}</option>
+								#{/list}
+								</select>
+								 <label id="DepartmentInput" style="display:none;"><font color="red">*必须输入</font></label>
+								 </td>
+						</tr>
+						<tr>
+							<td>&{'TELPHONE'}：</td>
+							<td><input type="text" maxlength=20 class="form-control" id="TELPHONE"
+								name="T_USER_TELPHONE">
+								<label id="TelphoneInput" style="display:none;"><font color="red">*手机格式不正确</font></label>
+								</td>
+							<td>电子邮箱：</td>
+							<td><input type="text" maxlength=50 class="form-control" id="EMAIL"
+								 name="T_USER_MAIL">
+								 <label id="EmailInput" style="display:none;"><font color="red">*邮箱格式不正确</font></label>
+								 </td>
+						</tr>
+						<!-- <tr>
+							<td>&{'Permission'}：</td>
+							<td><select id="authorityManage" class="form-control" name="T_USER_PERMISSION" onchange="selectUserToApp();">
+									<option value="manager">管理员</option>
+									<option value="operator">操作员</option>
+							</select></td>
+							<td id="treeDemo" colspan="2" ></td>
+						</tr> -->
+					</tbody>
+				</table>
+				
+				<div class="table-footer text-center" style="position:fixed;margin-left:380px">
+					<button class="btn btn-primary" onclick="return submitValidate()">确定</button>
+				</div>
+				</form>
+				<div class="table-footer text-center" style="padding-left:80px">
+					<button class="btn btn-primary" onclick="reset()">清空</button>
+					
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	
+	function reset(){
+		document.getElementById('UserName').value = '';
+		document.getElementById('Password').value = '';
+		document.getElementById('DisplayName').value = '';
+		document.getElementById('TELPHONE').value = '';
+		document.getElementById('EMAIL').value = '';
+		
+	}
+	submitValidate = function()
+	{
+		var flag = true;
+		var userName = $("#UserName").val();
+		var password = $("#Password").val();
+		var displayName = $("#DisplayName").val();
+		var department = $("#Department").val();
+		var telphone = $("#TELPHONE").val();
+		var email = $("#EMAIL").val();
+		if(userName == ''|| password =='' )
+		{
+			toastr.error('用户名不能为空');
+			flag = false;
+		}
+		/* if(obj.length > 15){
+			toastr.error('用户名过长');
+			return false;
+		}
+		 */
+		else
+		{ 
+			if( !checkUser(userName))
+			{
+				toastr.error('用户名必须输入英文,数字或下划线并以英文或下划线开头');
+				flag = false;
+			}
+			
+		}
+		
+		
+		if(password == '')
+		{
+			toastr.error('密码必须输入');
+			flag = false;
+		}
+		
+		if(displayName == '')
+		{
+			toastr.error('显示名称必须输入');
+			flag = false;
+		}
+		
+		
+		
+		if(department == '')
+		{
+			toastr.error('所属部门必须输入');
+			flag = false;
+		}
+		
+		if(telphone == ''){
+			toastr.error('手机格式不正确');
+			flag = false;
+		}else{
+			if( !checkMobile(telphone))
+			{
+				toastr.error('手机格式不正确');
+				flag = false;
+			}
+		}
+		$("#TelphoneInput").hide();
+		
+		
+		if(email == ''){
+			toastr.error('邮箱格式不正确');
+			flag = false;
+		}else{
+			if( !checkEmail(email))
+			{
+				toastr.error('邮箱格式不正确');
+				flag = false;
+			}
+		}
+		$("#EmailInput").hide();
+		
+		var userNameverification = $("#UserName").val();
+/* 		var  userManager = $("#authorityManage").val();
+ */
+		var url= "@{Users.verification()}?userNameverification="+userNameverification;
+		$.ajax({
+	          type : "post",
+	          url : url,
+	          async : false,
+	          success : function(data){
+	             	if (data== 'false') {
+	                	toastr.error('用户名已存在!');
+	                	flag = false;
+	                	}
+	          		}
+	          });
+		 return flag;
+	}
+	///^[a-zA-z]\w{2,15}$/;
+	function
+	 checkUser(str){
+	    var
+	 re = /^([a-zA-Z_]+)+(\w+[\.]?)*\w+$/;
+	    if(re.test(str)){
+	        return true;
+	    }else{
+	        return false;
+	    }          
+	}
+	
+	function
+	 checkEmail(str){
+	    var
+	 re = /^(\w-*\.*)+@(\w-?)+(\.\w{2,})+$/
+	    if(re.test(str)){
+	       	return true;
+	    }else{
+			return false;
+	    }
+	}
+	
+	function 
+	 checkMobile(str) {
+	    var 
+	 re = /^1\d{10}$/
+	    if (re.test(str)) {
+	    	return true;
+	    } else {
+	    	return false;
+	    }
+	}
+	function selectUserToApp()
+	{
+		var authorityManage=$("#authorityManage").val();
+		if(authorityManage=='管理员'){
+			getAppSysByUserId();
+		}else if(authorityManage=='操作员'){
+			getAppSysByUserId();
+		}
+		
+	}
+	function queryProcess()
+	{
+		var selectName = $("#selectName").val();
+		var selectDisplayName = $("#selectDisplayName").val();
+		var selectDepartment = $("#selectDepartment").val();
+		document.getElementById('userList').src="@{list()}?selectName="+selectName+"&selectDisplayName="+selectDisplayName+"&selectDepartment="+selectDepartment;
+	}
+</script>

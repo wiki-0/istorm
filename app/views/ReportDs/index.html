@@ -1,0 +1,414 @@
+#{extends 'main.html' /}
+<style>
+    iframe {
+        width: 100%;
+        border: 20px;
+        height: 320px;
+    }
+    .table-responsive {
+        overflow-x: hidden
+    }
+</style>
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2 style="font-size: 20px;"></h2>
+        <ol class="breadcrumb">
+            <li><a href="@{Application.index()}">首页</a></li>
+            <li><a>报告管理</a></li>
+            <li class="active"><strong>报告模板配置</strong></li>
+        </ol>
+    </div>
+    <div class="col-lg-2"></div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="ibox">
+            <div class="ibox-title">
+                <h5>Word模板</h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link"> <i class="fa fa-chevron-up"></i></a> <a class="collapse-link"> </a>
+                </div>
+            </div>
+            <div class="ibox-content">
+                <table class="table table-bordered">
+                    <tbody>
+                    <tr>
+                        <td>
+                            <form action="@{ReportDs.downloadDoc()}" enctype="multipart/form-data" method="post">
+                                <button class="btn btn-primary" type="submit">模板下载</button>
+                            </form>
+                        </td>
+                        <td width="8%" align="right"><span class="sel-tit">替换变量：</span></td>
+                        <td width="18%">
+                            <input type="text" name="T_Report_VAR" id="T_Report_VAR" class="form-control" maxlength="20">
+                        </td>
+                        <td width="8%" align="right"><span class="sel-tit">任务名称：</span></td>
+                        <td width="18%">
+                            <input type="text" name="T_Report_JOB" id="T_Report_JOB" class="form-control" maxlength="20">
+                        </td>
+                        <td width="8%" align="right"><span class="sel-tit">分层名称：</span></td>
+                        <td width="18%">
+                            <input type="text" name="T_Report_NODETYPE" id="T_Report_NODETYPE" class="form-control" maxlength="20">
+                        </td>
+                        <td>&nbsp;&nbsp;
+                            <input type="button" name="name" value="查询" class="btn btn-primary" onclick="getReportList()" />&nbsp;
+                            <button class="btn btn-primary" onclick="newModal()">新增</button>
+                        </td>
+
+                    </tr>
+                    </tbody>
+                </table>
+                <div id="crudListTable">
+                #{crud.tsmtable fields:['替换变量','任务名称','分层名称','设备名称','脚本名称','开始时间','结束时间','删除'] }
+			        #{/crud.tsmtable}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modal-sizes-1" class="modal fade" tabindex="-1" role="dialog" style="display: none;">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-hidden="true">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </button>
+                <h4 class="modal-title">是否删除：</h4>
+            </div>
+            <div class="modal-body">请确认是否删除？</div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="deleteFile()">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modal-form" class="modal fade" aria-hidden="true">
+    <div class="modal-dialog" style="width:800px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">模板配置</h4>
+            </div>
+            <div class="modal-body">
+                <form id="reportD" action="@{ReportDs.saveReportSet()}" method="POST" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <table class="table table-bordered">
+                                <tbody>
+                                <tr>
+                                    <td width="10%">替换变量：</td>
+                                    <td colspan="3"><input type="text" name="varId" id="varId" class="form-control"  maxlength="20"></td>
+                                </tr>
+                                <tr>
+                                    <td width="11%">任务名称：</td>
+                                    <td width="40%"><select class="form-control " name="jobId" id="jobId" onchange="getNodetypeList()"></select></td>
+                                    <td width="11%">分层名称：</td>
+                                    <td width="40%"><select class="form-control " name="nodetypeId" id="nodetypeId" onchange="getNodeList()"></select></td>
+                                <tr>
+                                    <td width="11%">设备名称：</td>
+                                    <td width="40%"><select class="form-control " name="nodeId" id="nodeId" onchange="getScriptList()"></select></td>
+                                    <td width="11%">脚本名称：</td>
+                                    <td width="40%"><select class="form-control " name="scriptId" id="scriptId" ></select></td>
+                                </tr>
+                                <tr>
+                                    <td width="11%">开始时间：</td>
+                                    <td width="40%">
+                                        <div class="input-prepend input-group">
+                                            <input type="text" name="startTime" id="startTime"
+                                                   class="form-control" readonly="readonly" value="${startTime}" />
+											<span class="add-on input-group-addon">
+											<i class="glyphicon glyphicon-calendar fa fa-calendar" style="cursor: pointer;"
+                                               onclick="WdatePicker({el:$dp.$('startTime'),dateFmt:'yyyy-MM-dd',skin:'whyGreen'})"></i>
+											</span>
+                                        </div>
+                                    </td>
+                                    <td width="11%">结束时间：</td>
+                                    <td width="40%">
+                                        <div class="input-prepend input-group">
+                                            <input type="text" name="endTime" id="endTime"
+                                                   class="form-control" readonly="readonly" value="${endTime}" />
+											<span class="add-on input-group-addon">
+											<i class="glyphicon glyphicon-calendar fa fa-calendar" style="cursor: pointer;"
+                                               onclick="WdatePicker({el:$dp.$('endTime'),dateFmt:'yyyy-MM-dd',skin:'whyGreen'})"></i>
+											</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" align="center">
+                                        <span><button class="btn btn-primary" onclick="return submitValidate()">确定</button></span>
+                                        <span><button class="btn btn-primary" type="reset">清空</button></span>
+                                        <input  type="hidden" id="sid" name="sid">
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        getReportList();
+        getJobList();
+    });
+    newModal = function () {
+        document.getElementById("reportD").reset();
+        getJobList();
+        $("#exampleModalLabel").html("新增替换变量");
+        $('#modal-form').modal('show');
+    }
+    var reportVAR = "";
+    showReportDetail = function(id)
+    {
+        document.getElementById("sid").value = id;
+        $.ajax({
+            url:"@{ReportDs.editReport()}",
+            data:{id:id},
+            success: function(data){  //返回的数据用于填充表单
+                var dataObj=eval(data);
+                document.getElementById("varId").value = dataObj[0].T_Report_VAR;
+                reportVAR = dataObj[0].T_Report_VAR;
+                document.getElementById("startTime").value = dataObj[0].T_Report_STARTTIME;
+                document.getElementById("endTime").value = dataObj[0].T_Report_ENDTIME;
+                $("#jobId").val(dataObj[0].T_Report_JOB);
+                getNodetypeList(dataObj[0].T_Report_NODETYPE,dataObj[0].T_Report_NODE,dataObj[0].T_Report_SCRIPT);
+                $("#exampleModalLabel").html("编辑替换变量");
+                $('#modal-form').modal('show');
+            }
+        });
+    }
+    getJobList = function () {
+        $.ajax({
+            url:"@{ReportDs.getJobList()}",
+            success: function(data){
+                var myData = eval('(' + data + ')');
+                var opt = "";
+                for (var i = 0; i < myData.length; i++) {
+                    opt += "<option value='" + myData[i].id + "' >" + myData[i].name + "</option>";
+                }
+                $("#jobId").html(opt);
+                $("#nodetypeId").html("<option value=''>未选择</option>");
+                $("#nodeId").html("<option value=''>未选择</option>");
+                $("#scriptId").html("<option value=''>未选择</option>")
+            }
+        });
+    }
+    getNodetypeList = function (nodetype,node,script) {
+    	var id = document.getElementById("jobId").value;
+    	if (id != null){
+    		$.ajax({
+                url:"@{ReportDs.getNodetypeList()}",
+                data:{id:id},
+                success: function(data){
+                    var myData = eval('(' + data + ')');
+                    var opt = "";
+                    for (var i = 0; i < myData.length; i++) {
+                        opt += "<option value='" + myData[i].id + "' >" + myData[i].name + "</option>";
+                    }
+                    $("#nodetypeId").html(opt);
+                    $("#nodeId").html("<option value=''>未选择</option>");
+                    $("#scriptId").html("<option value=''>未选择</option>");
+                    if (nodetype != null){
+                        $("#nodetypeId").val(nodetype);
+                        getNodeList(nodetype,node,script);
+                    }
+                }
+            });
+    	}
+    }
+    getNodeList = function (nodetype,node,script) {
+    	var jobId = document.getElementById("jobId").value;
+    	var nodetypeId = document.getElementById("nodetypeId").value;
+        if (nodetype != null){
+            nodetypeId = nodetype;
+        }
+    	if (jobId != "" && nodetypeId != ""){
+    		$.ajax({
+                url:"@{ReportDs.getNodeList()}",
+                data:{
+                	"jobId":jobId,
+                	"nodetypeId":nodetypeId
+                	},
+                success: function(data){
+                    var myData = eval('(' + data + ')');
+                    var opt = "";
+                    for (var i = 0; i < myData.length; i++) {
+                        opt += "<option value='" + myData[i].id + "' >" + myData[i].name + "</option>";
+                    }
+                    $("#nodeId").html(opt);
+                    $("#scriptId").html("<option value=''>未选择</option>");
+                    if (node != null){
+                        $("#nodeId").val(node);
+                        getScriptList(script);
+                    }
+                }
+            });
+    	}
+    }
+    getScriptList = function (script) {
+    	var jobId = document.getElementById("jobId").value;
+    	if (jobId != ""){
+    		$.ajax({
+                url:"@{ReportDs.getScriptList()}",
+                data:{
+                	"jobId":jobId
+                	},
+                success: function(data){
+                    var myData = eval('(' + data + ')');
+                    var opt = "";
+                    for (var i = 0; i < myData.length; i++) {
+                        opt += "<option value='" + myData[i].id + "' >" + myData[i].name + "</option>";
+                    }
+                    $("#scriptId").html(opt);
+                    if (script != null){
+                        $("#scriptId").val(script);
+                    }
+                }
+            });
+    	}
+    }
+    //变量名称唯一
+    onlyName = function(){
+        var url = "@{ReportDs.getName()}";
+        $.post(url, function(data) {
+            var myData = eval('(' + data + ')');
+            for (var i = 0; i < myData.length; i++) {
+                if ( $("#varId").val()==myData[i].T_Report_VAR) {
+                    toastr.error('替换变量不能重复！');
+                }
+            }
+        });
+    }
+    //表单验证
+    submitValidate = function()
+    {
+        var flag = true;
+        var startTime = document.getElementById("startTime").value;
+        var endTime = document.getElementById("endTime").value;
+        if (startTime == ""){
+            toastr.error('未选择开始时间！');
+            flag = false;
+        }
+        if (endTime == ""){
+            toastr.error('未选择结束时间！');
+            flag = false;
+        }
+        if (startTime > endTime){
+            toastr.error('开始时间不能大于结束时间！');
+            flag = false;
+        }
+        var reportVar = document.getElementById("varId").value;
+        if(reportVar == ""){
+            toastr.error('替换变量不能为空！');
+            flag = false;
+        }
+        var jobVar = document.getElementById("jobId").value;
+        if(jobVar == ""){
+            toastr.error('任务名称不能为空！');
+            flag = false;
+        }
+        var nodetypeVar = document.getElementById("nodetypeId").value;
+        if(nodetypeVar == ""){
+            toastr.error('分层名称不能为空！');
+            flag = false;
+        }
+        var nodeVar = document.getElementById("nodeId").value;
+        if(nodeVar == ""){
+            toastr.error('设备名称不能为空！');
+            flag = false;
+        }
+        var scriptVar = document.getElementById("scriptId").value;
+        if(scriptVar == ""){
+            toastr.error('脚本名称不能为空！');
+            flag = false;
+        }
+        var sid = document.getElementById("sid").value;
+        if (sid == "") {
+            $.ajax({
+                type: "POST",//请求方式
+                async: false,
+                url: "/ReportDs/verifyReport?reportVar=" + reportVar,
+                success: function (data) {
+                    if (data == "ERROR") {
+                        toastr.error('替换变量不能重复！');
+                        flag = false;
+                    }
+                }
+            });
+        } else {
+            var url2 = "@{ReportDs.getName()}";
+            $.post(url2, function (data) {
+                var myData = eval('(' + data + ')');
+                for (var i = 0; i < myData.length; i++) {
+                    if ($("#varId").val() != reportVAR) {
+                        if ($("#varId").val() == myData[i].T_Report_VAR) {
+                            toastr.error('替换变量不能重复！');
+                            flag = false;
+                        }
+                    }
+                }
+            });
+        }
+        return flag;
+    }
+    var infoId = "";
+    function deleteinfo(id)
+    {
+        infoId = id;
+    }
+    function deleteFile()
+    {
+        var url="/ReportDs/deleteFile?id="+infoId;
+        $.post(url, function(data){
+            if(data=='true')
+            {
+                $("#"+infoId+"del").html('已删除');
+                $("#"+infoId+"del").attr("disabled","disabled");
+            }
+        });
+        $("#modal-sizes-1").modal('hide');
+    }
+    var resultDataTable;
+    function getReportList(){
+        var T_Report_VAR =  document.getElementById("T_Report_VAR").value;
+        var T_Report_JOB =  document.getElementById("T_Report_JOB").value;
+        var T_Report_NODETYPE =  document.getElementById("T_Report_NODETYPE").value;
+
+        var $searchResult = $('#crudListTable table');
+        if (resultDataTable) {
+            resultDataTable.fnClearTable(false);
+            $searchResult.dataTable().fnDestroy();
+        }  else {
+            $searchResult.show();
+        }
+        resultDataTable = $('#crudListTable table').dataTable({
+            "bProcessing": true,
+            "bServerSide": false,
+            "iDisplayLength": 20,
+            "bLengthChange": false,
+            "sPaginationType":"full_numbers",
+            "oLanguage": {
+                "sZeroRecords": "没有任何数据",
+                "oPaginate": {
+                    "sFirst":"首页",
+                    "sPrevious":"上一页",
+                    "sNext":"下一页",
+                    "sLast":"最后一页"
+                }
+            },
+            "sAjaxSource": '/ReportDs/getReportList?T_Report_VAR='+T_Report_VAR+"&T_Report_JOB="+T_Report_JOB+"&T_Report_NODETYPE="+T_Report_NODETYPE,
+            "fnServerParams": function ( aoData ) {
+                $(".dataTables_info").hide();
+                $(".dataTables_filter").hide();
+                aoData.push( { "name": "Fields", "value": "T_Report_VAR, T_Report_JOB,T_Report_NODETYPE,T_Report_NODE,T_Report_SCRIPT,T_Report_STARTTIME,T_Report_ENDTIME,DELETE"} );
+            }
+        });
+    }
+
+</script>

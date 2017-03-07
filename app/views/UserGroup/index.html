@@ -1,0 +1,380 @@
+#{extends 'main.html' /}  
+<style type="text/css">
+	.ztree li span.button.add {margin-left:2px; margin-right: -1px; background-position:-144px 0; vertical-align:top; *vertical-align:middle}
+	</style>
+<div class="row">
+<div>
+	<div class="row wrapper border-bottom white-bg page-heading">
+	    <div class="col-lg-10">
+	        <h2 style="font-size: 0px;"></h2>
+	        <ol class="breadcrumb">
+	            <li><a href="@{Application.index()}">首页</a></li>
+	            <li><a>系统管理</a></li>
+	            <li class="active"><strong>用户组管理</strong></li>
+	        </ol>
+	    </div>
+	    <div class="col-lg-2"></div>
+	</div>
+	
+	<div class="row">
+		<div class="col-lg-4" style="padding: 0;margin-left:30px" >
+			<div class="ibox float-e-margins">
+			<div>
+			</div>
+				<div class="ibox-title">
+					<h5 style="float:left;">用户分组&nbsp;&nbsp;&nbsp;</h5>
+						<a class="dropdown-toggle" data-toggle="modal" data-target="#modal-blurred-bg" onclick="reset()">
+							<i class="fa fa-plus"></i>
+						</a>
+					<div class="ibox-tools" style="float:right">
+						<a class="collapse-link">
+							<i class="fa fa-chevron-up"></i>
+						</a>
+				</div>
+					<div style="clear:both"></div>
+				</div>
+				<div class="ibox-content">
+					<ul id="treeDemo" class="ztree"></ul>
+				</div>
+			</div>
+		</div>
+		
+		<div id="modal-blurred-bg" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="newModalLabel" style="display: none;">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	       		 <h4 class="modal-title" id="exampleModalLabel">新增用户组</h4>
+			</div>
+			<div class="modal-body">
+				<form id="new_form" enctype="multipart/form-data" action="@{UserGroup.addUserGroup()}" method="post">
+						<table class="table table-condensed table-bordered">
+							<tbody>
+								<tr>
+									<td width="10%">用户组名称：</td>
+									<td width="40%"><input type="text" maxlength=20 class="form-control"
+										id="t_group_name" name="t_group_name" placeholder="必须输入">
+										<label id="t_group_name_input" style="display: none;"><font
+											color="red">*必须输入</font></label>
+									</td>
+								
+								</tr>
+							</tbody>
+						</table>
+				</form>
+	
+				<div class="modal-footer" style="text-align:center">
+					<button type="button" class="btn btn-primary" onclick="submit()">确定</button>
+					<button type="button" class="btn btn-primary" onclick="reset()">清空</button>
+					
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+		
+		<div class="col-lg-7" style="padding: 0;margin-left:20px" >
+			<div class="ibox float-e-margins">
+				<div class="ibox-title">
+					<h5>已选择用户</h5>
+					<div class="ibox-tools">
+					<button class="btn btn-primary" data-toggle="modal" data-target="#chooseModal" id="choose" onclick="chooseModal()" style="margin-right:30px">选择用户</button>
+						<a class="collapse-link"> <i class="fa fa-chevron-up"></i>
+						</a> 
+					</div>
+				</div>
+				<div class="ibox-content">
+					<form method="get" class="form-horizontal">
+						<div class="form-group">
+							
+						</div>
+						<div class="form-group">
+							 <div id="crudListTable">
+							#{crud.tsmtable fields:['用户账户','显示名称','所属部门','操作'] }
+							#{/crud.tsmtable}
+				            </div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		
+		
+	</div>
+	</div>
+</div>
+
+<div id="chooseModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addNodelLabel" style="display: none;">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	       		 <h4 class="modal-title" id="exampleModalLabel">选择用户</h4>
+	       		 <input type="hidden" id="GroupId">
+			</div>
+			<div class="modal-body">
+				<div id="crudChooseTable" >
+					#{crud.tsmtable fields:['id','用户账户','显示名称'] }
+					#{/crud.tsmtable}
+           		 </div>
+			</div>
+			<div class="modal-footer" style="text-align:center">
+					<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="ensure()">确定</button>
+		    </div>
+		</div>
+	</div>
+</div>
+<div id="modal-sizes-1" class="modal fade" tabindex="-1" role="dialog" style="display: none;">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </button>
+                <h4 class="modal-title"><p style="text-align:left;">是否删除:</p></h4>
+            </div>
+            <div class="modal-body">
+            	<p style="text-align:left;">请确认是否删除?</p>
+            </div>
+            <div class="modal-footer" >
+                <button class="btn btn-danger" onclick="return _deleteUser()">确认</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modal-sizes-2" class="modal fade" tabindex="-1" role="dialog" style="display: none;">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </button>
+                <h4 class="modal-title"><p style="text-align:left;">是否删除:</p></h4>
+            </div>
+            <div class="modal-body">
+            	<p style="text-align:left;">请确认是否删除?</p>
+            </div>
+            <div class="modal-footer" >
+                <button class="btn btn-danger" onclick="return _deleteUser()">确认</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+function reset(){
+	document.getElementById('t_group_name').value = '';
+	
+}
+	function chooseModal(){
+		var g_id=$("#GroupId").val();
+		getChooseList(g_id);
+	}
+	function ensure(){
+		var g_id=$("#GroupId").val();
+		if(g_id == ''){
+			confirm("请选择用户组");
+		}else{
+			var userids="";
+			   $('input[name="Choose"]:checked').each(function(){
+				   userids+=$(this).val()+";";
+	               });
+				var url = "/UserGroup/addUser?g_id="+g_id+"&&userids="+userids;
+				$.post(url, function(data) {
+					if(data=="OK"){
+						$("#chooseModal").hide();
+						getGroupList(g_id);
+					}
+				});
+		}
+	}
+	var g_id;//点击设备分层节点后，g_id 有当前节点的值
+	var setting = {
+	 	async : {  
+	        enable : true, // 设置 zTree是否开启异步加载模式  
+	        url : "/UserGroup/getTreeData", // Ajax 获取数据的 URL 地址  
+	    }, 
+		data : {
+		 simpleData : {  
+	         enable : true,  
+	         idKey : "id", // id编号命名 默认  
+	         pIdKey : "pId", // 父id编号命名 默认   
+	         rootPId : 0 // 用于修正根节点父节点数据，即 pIdKey 指定的属性值  
+	      }  
+		},
+		edit : {
+			enable: true,
+			showRenameBtn : false,
+			showRemoveBtn : true,
+			removeTitle:'删除'
+			
+		},
+		callback : {
+			beforeRemove : beforeRemove,
+			onClick : onClick,
+			onRemove: onRemove,
+		}
+	};
+	
+	function beforeRemove(treeId, treeGroup){
+		return confirm("确认删除" + treeGroup.name + "吗？");
+	}
+	function onClick(event, treeId, treeGroup, clickFlag) {
+		var passData = treeGroup.id;
+		var g_id = treeGroup.id;
+		if(g_id==""){ 
+			$('#choose').attr('disabled',true);
+		}else{
+			$('#choose').attr('disabled',false);
+		}
+		
+		getGroupList(g_id);
+		$("#GroupId").val(g_id);
+	}
+	function onRemove(event, treeId, treeGroup){
+		var ids = [];
+		ids = getChildren(ids,treeGroup);
+		console.log(ids);
+		var passData ="";
+		for(var i=0;i<ids.length;i++){
+			passData +=ids[i]+",";
+		}
+		passData = passData.substring(0,passData.length-1);
+		console.log(passData);
+		$.ajax({
+			type : "POST",
+			url : "/UserGroup/deleteById",
+			dataTypeString : 'text',
+			data : {
+				"ids" : passData
+			},
+			success : function(msg) {
+				if(msg="ok"){
+					window.location.href="/usergroup/index";
+				}else{
+					confirm("删除失败！");
+				}
+			}
+	
+		});
+	}
+	function getChildren(ids, treeGroup) {
+		ids.push(treeGroup.id)
+		if (treeGroup.isParent) {
+			for ( var obj in treeGroup.children) {
+				getChildren(ids, treeGroup.children[obj]);
+			}
+		}
+		return ids;
+	}
+
+	$(document).ready(function() {
+		//getChooseList();
+		//getGroupList();
+		$('#choose').attr('disabled',true);
+		$.fn.zTree.init($("#treeDemo"), setting);
+		 getAllUserJSON();  
+		
+	});
+
+	function getAllUserJSON() {
+		var url = "/UserGroup/getAllUserJSON";
+		$.post(url, function(data) {
+			var myData = eval('(' + data + ')');
+			 $("#t_User_Group_user").empty();
+			var opt = "<option value=''>请选择</option>";
+			for (var i = 0; i < myData.length; i++) {
+				opt += "<option value='"+myData[i].id+"' >" + myData[i].name
+						+ "</option>";
+			}
+			$("#t_User_Group_user").html(opt);
+			$("#edit_user").html(opt);
+		});
+	}
+	function submit() {
+		var obj = $("#t_group_name").val();
+		if(obj == '')
+		{
+			toastr.error('用户组名称不能为空');
+			return false;
+		}
+		$('#new_form').submit();
+	}
+    var resultDataTable;
+	function getGroupList(id){
+        var $searchResult = $('#crudListTable table');
+        if (resultDataTable) {
+            resultDataTable.fnClearTable(false);
+            $searchResult.dataTable().fnDestroy();
+        }  else {
+            $searchResult.show();
+        }
+        resultDataTable = $('#crudListTable table').dataTable({
+            "bProcessing": true,
+            "bServerSide": false,
+            "iDisplayLength": 20,
+            "bLengthChange": false,
+            "sPaginationType":"full_numbers",
+            "oLanguage": {
+                "sZeroRecords": "没有任何数据",
+                "sSearch":"查询 ",
+                "oPaginate": {
+                    "sFirst":"首页",
+                    "sPrevious":"上一页",
+                    "sNext":"下一页",
+                    "sLast":"最后一页"
+                }
+            },
+            "sAjaxSource": '/Users/getGroupList?id='+id,
+            "fnServerParams": function ( aoData ) {
+                $(".dataTables_info").hide();
+                aoData.push( { "name": "Fields", "value": "T_USER_NAME , T_USER_DISPLAY_NAME, T_USER_DEPARTMENT, delete"} );
+            }
+        });
+    }
+	//删除用户组用户
+	var userId = "";
+    function deleteUser(id){
+		userId = id;
+    	$('#modal-sizes-1').modal('show');
+    }
+    function _deleteUser(){
+    	var gid =  $("#GroupId").val();
+    	var url = "/Users/deleteUserById?id="+userId+"&gid="+gid;
+    	$.post(url,function(data){
+    		$('#modal-sizes-1').modal('hide');
+    		getGroupList(gid);
+    	})
+    }
+	 var chooseDataTable;
+		function getChooseList(gid){
+	        var $searchResult = $('#crudChooseTable table');
+	        if (chooseDataTable) {
+	        	chooseDataTable.fnClearTable(false);
+	            $searchResult.dataTable().fnDestroy();
+	        }  else {
+	            $searchResult.show();
+	        }
+	        chooseDataTable = $('#crudChooseTable table').dataTable({
+	            "bProcessing": true,
+	            "bServerSide": false,
+	            "iDisplayLength": 20,
+	            "bLengthChange": false,
+	            "sPaginationType":"full_numbers",
+	            "oLanguage": {
+	                "sZeroRecords": "没有任何数据",
+	                "sSearch":"查询 ",
+	                "oPaginate": {
+	                    "sFirst":"首页",
+	                    "sPrevious":"上一页",
+	                    "sNext":"下一页",
+	                    "sLast":"最后一页"
+	                }
+	            },
+	            "sAjaxSource": '/Users/getChooseList?gid='+gid,
+	            "fnServerParams": function ( aoData ) {
+	                $(".dataTables_info").hide();
+	                aoData.push( { "name": "Fields", "value": "Choose, T_USER_NAME,T_USER_DISPLAY_NAME"} );
+	            }
+	        });
+	    }
+</script>

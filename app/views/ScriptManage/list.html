@@ -1,0 +1,84 @@
+#{extends 'example.html' /} #{set title:'IStorm Patrol' /}
+
+<div>
+    <div id="crudListTable">
+        #{crud.table fields:['T_SCRIPT_NAME','T_SCRIPT_FILENAME','T_SCRIPT_COMMAND','T_SCRIPT_GROUP_ID','T_SCRIPT_TYPE','T_ALARM_THRESHOLD_TYPE','T_SCRIPT_USER','T_SCRIPT_DATE','操作'],sort:['T_SCRIPT_NAME','T_SCRIPT_FILENAME','T_SCRIPT_COMMAND','T_SCRIPT_GROUP_ID','T_SCRIPT_TYPE','T_ALARM_THRESHOLD_TYPE','T_SCRIPT_USER','T_SCRIPT_DATE']}
+
+        #{crud.custom 'T_SCRIPT_GROUP_ID'}
+        %{if(object.T_SCRIPT_GROUP_ID==0||object.T_SCRIPT_GROUP_ID==null){}%
+          未分组
+        %{}else{}%
+        <input type="text" class="LIST_T_SCRIPT_GROUP_ID" value="${object.T_SCRIPT_GROUP_ID}" style="border:1px;border-bottom-style:none;border-top-style:none;border-left-style:none;border-right-style:none;BACKGROUND-COLOR: transparent;" readonly hidden>
+        %{}}%
+        #{/crud.custom}
+
+        #{crud.custom 'T_SCRIPT_COMMAND'}
+                		${object.T_SCRIPT_COMMAND.length()>25 ? object.T_SCRIPT_COMMAND.substring(0,20)+"..." : object.T_SCRIPT_COMMAND }
+        #{/crud.custom}
+
+        #{crud.custom 'T_SCRIPT_TYPE'}
+        %{
+          if("bat".equals(object.T_SCRIPT_TYPE))
+          {
+            object.T_SCRIPT_TYPE="bat脚本"
+          }
+          if("vbs".equals(object.T_SCRIPT_TYPE))
+          {
+            object.T_SCRIPT_TYPE="vbs脚本"
+          }
+          if("ps1".equals(object.T_SCRIPT_TYPE))
+          {
+            object.T_SCRIPT_TYPE="powershell脚本"
+          }
+          if("sh".equals(object.T_SCRIPT_TYPE))
+          {
+            object.T_SCRIPT_TYPE="shell脚本"
+          }
+        }%
+        ${object.T_SCRIPT_TYPE}
+        #{/crud.custom}
+
+        #{crud.custom 'T_ALARM_THRESHOLD_TYPE'}
+        %{
+          if("0".equals(object.T_ALARM_THRESHOLD_TYPE))
+          {
+            object.T_ALARM_THRESHOLD_TYPE="阈值"
+          }
+          if("1".equals(object.T_ALARM_THRESHOLD_TYPE))
+          {
+            object.T_ALARM_THRESHOLD_TYPE="关键字"
+          }
+        }%
+        ${object.T_ALARM_THRESHOLD_TYPE}
+        #{/crud.custom }
+        #{crud.custom '操作'}
+        <form action="@{ScriptManage.getFile()}" method="post">
+        <input type="text" name="T_SCRIPT_ID" value="${object.id}" hidden>
+        <input type="submit" value="导出" class="btn btn-primary">
+          </form>
+        #{/crud.custom}
+        #{/crud.table}
+    </div>
+    <div id="crudListPagination">
+        #{crud.pagination /}
+    </div>
+</div>
+<script type="text/javascript">
+$(document).ready(
+        function() {
+            window.parent.licenseLimit();
+            var url = "@{ScriptManage.getScriptGroup()}";
+
+            $.post(url, function(data) {
+                var myData = eval('(' + data + ')');
+                  $('.LIST_T_SCRIPT_GROUP_ID').each(function(){
+                    for (var i = 0; i < myData.length; i++) {
+                      if ($(this).val()==myData[i].T_SCRIPT_GROUP_ID) {
+                        $(this).val(myData[i].T_SCRIPT_GROUP_NAME);
+                        $(this).show();
+                      }
+                      }
+                  });
+            });
+        });
+</script>

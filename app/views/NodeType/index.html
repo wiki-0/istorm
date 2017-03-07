@@ -1,0 +1,835 @@
+#{extends 'main.html' /} #{set title: '设备分层' /}
+<style type="text/css">
+	.ztree li span.button.add {margin-left:2px; margin-right: -1px; background-position:-144px 0; vertical-align:top; *vertical-align:middle}
+
+	.pagination > li > a, .pagination > li > span{
+		margin-left: -4px;
+	}
+	#newNodeListTable .table-responsive,#newJobListTable .table-responsive{
+		overflow-x:hidden;
+	}
+	table td,table th{
+		text-align: center;
+	}
+</style>
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2 style="font-size: 20px;"></h2>
+        <ol class="breadcrumb">
+        	<li><a href="@{Application.index()}">首页</a></li>
+            <li class="active">巡检对象管理</li>
+            <li class="active"><strong>设备分层</strong></li>
+        </ol>
+    </div>
+    <div class="col-lg-2"></div>
+</div>
+
+<div class="row">
+	<div class="col-lg-4">
+		<div class="ibox float-e-margins">
+			<div class="ibox-title">
+				<h5>设备分层</h5>
+				<div class="ibox-tools">
+					<button class="btn btn-warning" data-toggle="modal" data-target="#editNodeType" onclick="loadNodeType()" id="_editNodeType">编辑</button>
+					<button class="btn btn-primary" data-toggle="modal" data-target="#newNodeType" id="_newNodeType">新增</button>
+				</div>
+			</div>
+			<div class="ibox-content">
+				<div class="input-group">
+					<input id="searchName" class="form-control" style="border-radius:5px;float:left;" type="text" placeholder="请输入设备名称" />
+					<span class="input-group-btn">
+						<button type="button" class="btn btn-primary" style="margin-left:2px;" onclick="searchNode()">查询</button>
+						<button type="button" class="btn btn-primary" style="margin-left:2px;" onclick="clearSearchNode()">清除</button>
+					</span>
+				</div>
+				<ul id="searchContent">
+
+				</ul>
+				<ul id="treeDemo" class="ztree"></ul>
+			</div>
+		</div>
+	</div>
+	<div class="col-lg-8">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="ibox float-e-margins">
+					<div class="ibox-title">
+						<h5>设备列表</h5>
+						<div class="ibox-tools">
+							<button class="btn btn-primary" data-toggle="modal" data-target="#addNode" id="_addNode">新增</button>
+						</div>
+					</div>
+					<div class="ibox-content">
+						<div id="nodeListTable" >
+							#{crud.tsmtable fields:['设备名称','IP地址','操作系统类型','删除'] }
+							#{/crud.tsmtable}
+		           		 </div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="ibox float-e-margins">
+					<div class="ibox-title">
+						<h5>任务列表</h5>
+						<div class="ibox-tools">
+							<button class="btn btn-primary" data-toggle="modal" data-target="#addJob" id="_addJob">新增</button>
+						</div>
+					</div>
+					<div class="ibox-content">
+						<div id="jobListTable" >
+							#{crud.tsmtable fields:['任务名称','删除','操作'] }
+							#{/crud.tsmtable}
+		           		 </div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- <div class="row">
+	<div class="col-lg-8 col-lg-offset-4">
+
+	</div>
+</div> -->
+
+
+<div id="newNodeType" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="newNodeTypeLabel" style="display: none;">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	       		 <h4 class="modal-title" id="exampleModalLabel">新增分层</h4>
+			</div>
+			<div class="modal-body">
+				<form id="new_form" enctype="multipart/form-data" action="@{NodeType.addNodeType()}" method="post">
+						<table class="table table-condensed table-bordered">
+							<tbody>
+								<tr>
+									<td width="10%">设备分层名称:</td>
+									<td width="40%"><input type="text" class="form-control"
+										id="tNodeType.T_NODE_TYPE_NAME" name="tNodeType.T_NODE_TYPE_NAME" maxlength=20>
+									</td>
+									<td width="10%">父级节点：</td>
+									<td width="40%">
+										<input type="text" class="form-control" id="parentName" name="parentName" readonly>
+									</td>
+								</tr>
+								<tr>
+									<td width="10%">负责人员：</td>
+									<td width="40%">
+										<select class="form-control" name="t_node_type_user" id="t_node_type_user">
+										</select>
+									</td>
+									<td width="10%">系统分类：</td>
+									<td width="40%">
+									<input type="text" class="form-control"
+										id="tNodeType.tBusinessType" name="tNodeType.tBusinessType" maxlength=20>
+									</td>
+								</tr>
+								<tr>
+									<td colspan="1">是否继承上层任务：</td>
+									<td colspan="3">
+										<div class="radio" style="position:fixed;left:">
+											<label> <input type="radio" value="true"
+												id="newIsExtendTrue" name="tNodeType.isExtend"> 是
+											</label>
+											<label> <input type="radio"  value="false"
+												id="newIsExtendFalse" name="tNodeType.isExtend" checked="true"> 否
+											</label>
+										</div>
+									</td>
+								</tr>
+								 <tr>
+                                    <td colspan="4" align="center">
+                                   		<!-- <button  class="btn btn-default" data-dismiss="modal">取消</button> -->
+										<button  class="btn btn-primary" onclick="return newNodeTypeSubmit()">确定</button>
+										<button type="button" class="btn btn-primary" onclick="clearNewNodeType()">清空</button>
+										<input type="hidden" class="form-control" id="parentId" name="parentId">
+                                    </td>
+                                </tr>
+							</tbody>
+						</table>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+		*{/********************************修改***********************************************/}*
+<div id="editNodeType" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editNodeTypeLabel" style="display: none;">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	       		 <h4 class="modal-title" id="exampleModalLabel">编辑分层</h4>
+			</div>
+			<div class="modal-body">
+				<form id="edit_form" enctype="multipart/form-data" action="@{NodeType.editNodeType()}" method="post">
+						<table class="table table-condensed table-bordered">
+							<tbody>
+								<tr>
+									<td width="10%">设备分层名称:</td>
+									<td width="40%">
+										<input type="text" class="form-control" id="edit_name" name="edit_name" maxlength=20 required>
+									</td>
+									<td width="10%">机房位置：</td>
+									<td width="40%">
+										<input type="text" class="form-control" id="room_position" name="room_position" maxlength=20>
+									</td>
+								</tr>
+								<tr>
+									<td width="10%">负责人员：</td>
+									<td width="40%">
+										<select class="form-control" name="edit_user" id="edit_user">
+										</select>
+									</td>
+									<td width="10%">系统分类：</td>
+									<td width="40%">
+									<input type="text" class="form-control"
+										id="edit_type" name="edit_type" maxlength=20>
+									</td>
+								</tr>
+								<tr>
+									<td colspan="1">是否继承上层任务：</td>
+									<td colspan="3">
+										<div class="radio" style="position:fixed;left:">
+											<label> <input type="radio" value="1"
+												id="isExtendTrue" name="isExtend"> 是
+											</label>
+											<label> <input type="radio"  value="0"
+												id="isExtendFalse" name="isExtend" checked="true"> 否
+											</label>
+										</div>
+									</td>
+								</tr>
+								<tr>
+                                    <td colspan="4" align="center">
+                                   		<!-- <button  class="btn btn-default" data-dismiss="modal">取消</button> -->
+										<button  class="btn btn-primary" onclick="return edit_submit()">确定</button>
+										<button type="reset" class="btn btn-primary">清空</button>
+										<input type="hidden" class="form-control" id="edit_id" name="edit_id">
+                                    </td>
+                               </tr>
+							</tbody>
+						</table>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+*{/********************************************新增设备************************************************************/}*
+<div id="addNode" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addNodelLabel" style="display: none;">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	       		 <h4 class="modal-title" id="exampleModalLabel">新增设备</h4>
+			</div>
+			<div class="modal-body">
+				<div id="newNodeListTable" >
+					#{crud.tsmtable fields:['id','设备名称','IP地址','操作系统类型'] }
+						#{crud.custom 'id'}
+						#{/crud.custom}
+					#{/crud.tsmtable}
+           		 </div>
+			</div>
+			<div class="modal-footer">
+				<div align="center">
+					<!-- <button type="button" class="btn btn-default" data-dismiss="modal">取消</button> -->
+					<button type="button" class="btn btn-primary" onclick="addNode_submit()">确定</button>
+				</div>
+		    </div>
+		</div>
+	</div>
+</div>
+
+*{/********************************************新增任务************************************************************/}*
+<div id="addJob" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addJobLabel" style="display: none;">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	       		 <h4 class="modal-title" id="exampleModalLabel">新增任务</h4>
+			</div>
+			<div class="modal-body">
+				<div id="newJobListTable" >
+					#{crud.tsmtable fields:['id','任务名称'] }
+					#{/crud.tsmtable}
+           		 </div>
+			</div>
+			<div class="modal-footer">
+				<div align="center">
+					<!-- <button type="button" class="btn btn-default" data-dismiss="modal">取消</button> -->
+					<button type="button" class="btn btn-primary" onclick="addJob_submit()">确定</button>
+				</div>
+		    </div>
+		</div>
+	</div>
+</div>
+
+<div id="modal-sizes-1" class="modal fade" tabindex="-1" role="dialog" style="display: none;">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </button>
+                <h4 class="modal-title"><p style="text-align:center;">是否删除:</p></h4>
+            </div>
+            <div class="modal-body">
+            	<p style="text-align:center;">请确认是否删除?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="return _deleteNode()">确认</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modal-sizes-2" class="modal fade" tabindex="-1" role="dialog" style="display: none;">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </button>
+                <h4 class="modal-title"><p style="text-align:center;">是否删除:</p></h4>
+            </div>
+            <div class="modal-body">
+            	<p style="text-align:center;">请确认是否删除?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="return _deleteJob()">确认</button>
+            </div>
+        </div>
+    </div>
+</div>
+<SCRIPT type="text/javascript">
+	var g_id;//点击设备分层节点后，g_id 有当前节点的值
+	var parentName;//新增分层里的父节点名称
+	var setting = {
+	 	async : {
+            enable : true, // 设置 zTree是否开启异步加载模式
+            url : "/NodeType/getTreeData", // Ajax 获取数据的 URL 地址
+        },
+		data : {
+		 simpleData : {
+             enable : true,
+             idKey : "id", // id编号命名 默认
+             pIdKey : "pId", // 父id编号命名 默认
+             rootPId : 0 // 用于修正根节点父节点数据，即 pIdKey 指定的属性值
+          }
+		},
+		edit : {
+			enable: true,
+			showRenameBtn : false,
+			showRemoveBtn : showRemoveBtn,
+			removeTitle: "删除"
+		},
+		callback : {
+			beforeRemove : beforeRemove,
+			onClick : onClick,
+			onRemove: onRemove
+		}
+	};
+
+	function beforeRemove(treeId, treeNode){
+		 return confirm("确认删除？");
+
+	}
+
+	var passData ="";
+	function onRemove(event, treeId, treeNode){
+		//先清空一下全局passData
+		passData="";
+		passData = formatIds(treeNode);
+
+		$.ajax({
+			type : "POST",
+			url : "/NodeType/removeNodeType",
+			dataTypeString : 'text',
+			data : {
+				"ids" : passData
+			},
+			success : function(msg) {
+				window.location.href="/nodetype/index";
+			}
+
+		});
+	}
+
+	function showRemoveBtn(treeId, treeNode){
+		if(treeNode.id!="1"){
+			return true;
+		}
+	}
+
+	function onClick(event, treeId, treeNode, clickFlag) {
+		g_id = treeNode.id;
+		parentName = treeNode.name;
+		// console.log(parentName);
+		$('#parentName').val(treeNode.name);//新增分层里的父节点名称
+		$('#parentId').val(treeNode.id);////新增分层里的父节点id（隐藏）
+
+
+	    if(treeNode.id=="1"){ //顶层 禁掉“新增设备”和“新增任务“和”修改“按钮
+	    	$('#_addJob').attr('disabled',true);
+	    	$('#_addNode').attr('disabled',true);
+	    	$('#_editNodeType').attr('disabled',true);
+	    	$('#newIsExtendTrue').attr('disabled',true);
+	    }
+	    else{
+	    	$('#_addJob').attr('disabled',false);
+	    	$('#_addNode').attr('disabled',false);
+	    	$('#_editNodeType').attr('disabled',false);
+	    	$('#newIsExtendTrue').attr('disabled',false);
+
+	    }
+
+	     if(treeNode.isParent){  //如果是父层  禁掉 “新增设备” 按钮
+	    	document.getElementById('_addNode').disabled=true;
+
+	    }else{
+	    	/*document.getElementById('_addNode').disabled=false;*/
+	    }
+
+	    if(treeNode.pId=="1"){
+			$('#isExtendTrue').attr('disabled',true);
+		}else{
+			$('#isExtendTrue').attr('disabled',false);
+		}
+
+	   	if(treeNode.id !="1"){
+	   		getNodeList(treeNode.id); // 获取设备列表
+			getJobList(treeNode.id);//获取任务列表
+	   	}
+
+	   	isHaveNodes(treeNode.id);//有设备  就 禁掉 新增 按钮
+	}
+
+	function isHaveNodes(treeNodeId){
+		$.post(
+			"/NodeType/isHaveNodes?treeNodeId="+treeNodeId,
+			 function(msg) {
+				if(msg=="true"){
+					document.getElementById('_newNodeType').disabled=true;
+				}
+				if(msg=="false"){
+					document.getElementById('_newNodeType').disabled=false;
+				}
+			}
+		);
+
+	}
+	/**
+	* 获取某节点下所有的子节点...递归
+	*/
+	function getChildren(ids, treeNode) {
+		ids.push(treeNode.id)
+		if (treeNode.isParent) {
+			for ( var obj in treeNode.children) {
+				getChildren(ids, treeNode.children[obj]);
+			}
+		}
+		return ids;
+	}
+	/**
+	* 获取到 格式化之后的 当前分层以及子层的id
+	*/
+	function formatIds(treeNode){
+		var ids = [];
+		ids = getChildren(ids,treeNode);//获取当前分层以及子层的id,格式： [1,2,3,4]
+
+		/**
+		* 把ids 转换为  字符串-----格式：  1，2，3，4
+		*/
+		for(var i=0;i<ids.length;i++){
+			passData +=ids[i]+",";
+		}
+		passData = passData.substring(0,passData.length-1);
+
+		return passData;
+	}
+
+	/**
+	*  获取到所有负责人
+	*/
+	function getAllUserJSON() {
+		var url = "/NodeType/getAllUserJSON";
+		$.post(url, function(data) {
+			var myData = eval('(' + data + ')');
+			 $("#t_node_type_user").empty();
+			var opt = "<option value=''>请选择</option>";
+			for (var i = 0; i < myData.length; i++) {
+				opt += "<option value='"+myData[i].id+"' >" + myData[i].name
+						+ "</option>";
+			}
+			$("#t_node_type_user").html(opt);
+			$("#edit_user").html(opt);
+		});
+	}
+
+	/**
+	*  用于填充修改表单里的数据
+	*/
+	function loadNodeType(){
+		var url = "/NodeType/getNodeTypeById?id="+g_id;
+		$.get(url, function(data) {
+			var myData = eval('(' + data + ')');
+			$('#edit_id').val(myData[0].id);
+			$('#edit_name').val(myData[0].name);
+			$('#room_position').val(myData[0].room);
+			$('#edit_type').val(myData[0].type);
+			if(myData[0].isExtend==true){
+				document.getElementById('isExtendTrue').checked = true;
+			}else{
+				document.getElementById('isExtendFalse').checked = true;
+			}
+			$('#edit_user').val(myData[1].id);//选择value为 ***的option
+		});
+	}
+	/**
+	* 清空 新增分层表单
+	*/
+	function clearNewNodeType(){
+		document.getElementById('new_form').reset();
+		document.getElementById('parentName').value = parentName;
+		// $('#newNodeType').modal('show');
+		// $('#parentName').val(parentName);
+	}
+	/**
+	*  新增分层提交按钮
+	*/
+	 function  newNodeTypeSubmit() {
+	 	var nodeTypeName = document.getElementById('tNodeType.T_NODE_TYPE_NAME').value
+		var nodeTypeuser = $("#t_node_type_user").val();
+		var tBusinessType = document.getElementById('tNodeType.tBusinessType').value
+
+		if((nodeTypeName==null || nodeTypeName=="") && (nodeTypeuser == '')){
+			toastr.error('设备分层名称不能为空!');
+			toastr.error('负责人未选择!');
+            return false;
+		}
+
+        if (nodeTypeName == ''){
+            toastr.error('设备分层名称不能为空!');
+            return false;
+        }
+        if (nodeTypeName.length >= 20){
+            toastr.error('设备分层名称不能超过20个字符！');
+            return false;
+        }
+        if (nodeTypeuser == ''){
+            toastr.error('负责人未选择!');
+            return false;
+        }
+        if (tBusinessType.length >= 20){
+            toastr.error('系统分类不能超过20个字符！');
+            return false;
+        }
+	}
+	/**
+	*  修改分层提交按钮
+	*/
+	function edit_submit(){
+		var edit_name = $('#edit_name').val();
+		var room_position = $('#room_position').val();
+		var edit_user = $("#edit_user").val();
+		var edit_type = $('#edit_type').val();
+
+		if((edit_name==null || edit_name=="") && (edit_user == '')){
+			toastr.error('设备分层名称不能为空!');
+			toastr.error('负责人未选择!');
+            return false;
+		}
+		if(edit_name==null || edit_name==""){
+			toastr.error('设备分层名称不能为空!');
+            return false;
+		}
+		if(edit_name.length >=20){
+			toastr.error('设备分层名称不能超过20个字符！');
+            return false;
+		}
+		if(room_position.length >=10){
+			toastr.error('机房位置不能超过10个字符！');
+            return false;
+		}
+		 if (edit_user == ''){
+            toastr.error('负责人未选择!');
+            return false;
+        }
+		if(edit_type.length >=20){
+			toastr.error('系统分类不能超过20个字符！');
+            return false;
+		}
+	}
+
+	//点击--新增--列表显示前调用
+	$('#newNodeType').on('show.bs.modal',function(){
+		document.getElementById('tNodeType.T_NODE_TYPE_NAME').value="";
+		document.getElementById('t_node_type_user').options[0].selected = true;
+		document.getElementById('tNodeType.tBusinessType').value="";
+		document.getElementById('newIsExtendFalse').checked = true;
+	});
+
+	//点击--新增设备--列表显示前调用
+	$('#addNode').on('show.bs.modal',function(){
+		getNewNodeList(g_id);
+	});
+
+	//点击--新增任务--列表显示前调用
+	$('#addJob').on('show.bs.modal',function(){
+		getNewJobList(g_id);
+	});
+
+	function searchNode(){
+		$('#searchContent').empty();
+		var name = document.getElementById('searchName').value;
+		$.ajax({
+			type : "POST",
+			url : "/NodeType/searchNode",
+			dataTypeString : 'text',
+			data : {
+				"name" : name
+			},
+			success : function(data) {
+				var li;
+				var myData = eval('(' + data + ')');
+				for (var i = 0; i < myData.length; i++) {
+					li = "<li>"+myData[i].name+"</li>";
+					$('#searchContent').append(li);
+				}
+			}
+
+		});
+	}
+
+	function clearSearchNode(){
+		$('#searchName').val("");
+		$('#searchContent').empty();
+	}
+
+	/**
+	*  新增设备提交按钮
+	*/
+	function addNode_submit(){
+		var str="";
+		$("#newNodeListTable input[name='nodeCheckbox']:checked").each(function(){
+			str += $(this).val()+",";
+		})
+		str = str.substring(0,str.length-1);
+		var url = "/TNodes/addNodeToNodeType?nodeIds="+str+"&treeNodeId="+g_id;
+		$.post(url,function(data){
+			$('#addNode').modal('hide');
+			getNodeList(g_id);
+			isHaveNodes(g_id);
+		});
+	}
+
+	/**
+	*  新增任务提交按钮
+	*/
+	function addJob_submit(){
+		var str="";
+		$("#newJobListTable input[name='jobCheckbox']:checked").each(function(){
+			str += $(this).val()+",";
+		})
+		str = str.substring(0,str.length-1);
+		var url = "/TJobs/addJobToNodeType?nodeIds="+str+"&treeNodeId="+g_id;
+		$.post(url,function(data){
+			$('#addJob').modal('hide');
+			getJobList(g_id);
+		});
+	}
+	/************************************设备列表**************************************************/
+	var nodeDataTable;
+	function getNodeList(ids){
+
+        var $searchResult = $('#nodeListTable table');
+        if (nodeDataTable) {
+        	nodeDataTable.fnClearTable(false);
+            $searchResult.dataTable().fnDestroy();
+        }  else {
+            $searchResult.show();
+        }
+        nodeDataTable = $('#nodeListTable table').dataTable({
+            "bProcessing": true,
+            "bServerSide": false,
+            "iDisplayLength": 20,
+            "bLengthChange": false,
+            "sPaginationType":"full_numbers",
+            "oLanguage": {
+                "sZeroRecords": "没有任何数据",
+                "sSearch":"查询",
+                "oPaginate": {
+                    "sFirst":"首页",
+                    "sPrevious":"上一页",
+                    "sNext":"下一页",
+                    "sLast":"最后一页"
+                }
+            },
+            "sAjaxSource": '/TNodes/getNodeList?node_type_id='+ids+"&flag=0",
+            "fnServerParams": function ( aoData ) {
+                $(".dataTables_info").hide();
+                aoData.push( { "name": "Fields", "value": "T_NODE_NAME, T_NODE_IP,T_NODE_OS,delete"} );
+            }
+        });
+    }
+    //删除设备
+    var nodeId;
+    function deleteNode(id){
+    	nodeId = id ;
+    	$('#modal-sizes-1').modal('show');
+
+    }
+    function _deleteNode(){
+    	var url = "/TNodes/deleteNodeById?id="+nodeId+"&treeNodeId="+g_id;
+    	$.post(url,function(data){
+    		$('#modal-sizes-1').modal('hide');
+    		getNodeList(g_id);
+    		isHaveNodes(g_id);
+    	})
+    }
+	/************************************新增设备**************************************************/
+	var newNodeListTable;
+	function getNewNodeList(ids){
+
+        var $searchResult = $('#newNodeListTable table');
+        if (newNodeListTable) {
+        	newNodeListTable.fnClearTable(false);
+            $searchResult.dataTable().fnDestroy();
+        }  else {
+            $searchResult.show();
+        }
+        newNodeListTable = $('#newNodeListTable table').dataTable({
+            "bProcessing": true,
+            "bServerSide": false,
+            "iDisplayLength": 20,
+            "bLengthChange": false,
+            "sPaginationType":"full_numbers",
+            "oLanguage": {
+                "sZeroRecords": "没有任何数据",
+                "sSearch":"查询",
+                "oPaginate": {
+                    "sFirst":"首页",
+                    "sPrevious":"上一页",
+                    "sNext":"下一页",
+                    "sLast":"最后一页"
+                }
+            },
+            "sAjaxSource": '/TNodes/getNodeList?node_type_id='+ids+"&flag=1",
+            "fnServerParams": function ( aoData ) {
+                $(".dataTables_info").hide();
+                aoData.push( { "name": "Fields", "value": "id,T_NODE_NAME, T_NODE_IP,T_NODE_OS"} );
+            }
+        });
+    }
+	/************************************任务列表**************************************************/
+	var jobListTable;
+	function getJobList(ids){
+
+        var $searchResult = $('#jobListTable table');
+        if (jobListTable) {
+        	jobListTable.fnClearTable(false);
+            $searchResult.dataTable().fnDestroy();
+        }  else {
+            $searchResult.show();
+        }
+        jobListTable = $('#jobListTable table').dataTable({
+            "bProcessing": true,
+            "bServerSide": false,
+            "iDisplayLength": 20,
+            "bLengthChange": false,
+            "sPaginationType":"full_numbers",
+            "oLanguage": {
+                "sZeroRecords": "没有任何数据",
+                "sSearch":"查询",
+                "oPaginate": {
+                    "sFirst":"首页",
+                    "sPrevious":"上一页",
+                    "sNext":"下一页",
+                    "sLast":"最后一页"
+                }
+            },
+            "sAjaxSource": '/TJobs/nodeTypeGetJobList?node_type_id='+ids+"&flag=0",
+            "fnServerParams": function ( aoData ) {
+                $(".dataTables_info").hide();
+                aoData.push( { "name": "Fields", "value": "T_JOB_NAME,delete,executeNow"} );
+            }
+        });
+    }
+    //删除任务
+    var jobId;
+    function deleteJob(id){
+	  	jobId = id ;
+	  	$('#modal-sizes-2').modal('show');
+
+    }
+    function _deleteJob(){
+    	var url = "/TJobs/deleteJobById?id="+jobId+"&treeNodeId="+g_id;
+    	$.post(url,function(data){
+    		$('#modal-sizes-2').modal('hide');
+    		getJobList(g_id);
+    	})
+    }
+    //l立即执行
+    function executeJob(jobId){
+    	document.getElementById("job_"+jobId).disabled = true;
+    	$('#job_'+jobId).html("正在执行...");
+    	var url = "/TJobs/executeJob?jobId="+jobId+"&treeNodeId="+g_id;
+		$.post(url,function(data){
+			setTimeout(function() {
+				$('#job_'+jobId).html("执行完毕");
+			}, 2000);
+			/*if(data=="ok"){
+				// document.getElementById("job_"+jobId).disabled = false;
+
+			}*/
+		});
+    }
+    /************************************新增任务**************************************************/
+	var newJobListTable;
+	function getNewJobList(ids){
+
+        var $searchResult = $('#newJobListTable table');
+        if (newJobListTable) {
+        	newJobListTable.fnClearTable(false);
+            $searchResult.dataTable().fnDestroy();
+        }  else {
+            $searchResult.show();
+        }
+        newJobListTable = $('#newJobListTable table').dataTable({
+            "bProcessing": true,
+            "bServerSide": false,
+            "iDisplayLength": 20,
+            "bLengthChange": false,
+            "sPaginationType":"full_numbers",
+            "oLanguage": {
+                "sZeroRecords": "没有任何数据",
+                "sSearch":"查询",
+                "oPaginate": {
+                    "sFirst":"首页",
+                    "sPrevious":"上一页",
+                    "sNext":"下一页",
+                    "sLast":"最后一页"
+                }
+            },
+            "sAjaxSource": '/TJobs/nodeTypeGetJobList?node_type_id='+ids+"&flag=1",
+            "fnServerParams": function ( aoData ) {
+                $(".dataTables_info").hide();
+                aoData.push( { "name": "Fields", "value": "id,T_JOB_NAME"} );
+            }
+        });
+    }
+    $(document).ready(function() {
+		$.fn.zTree.init($("#treeDemo"), setting);
+		$('#_editNodeType').attr('disabled',true);
+		$('#_newNodeType').attr('disabled',true);
+		$('#_addNode').attr('disabled',true);
+		$('#_addJob').attr('disabled',true);
+		getAllUserJSON();
+	});
+</SCRIPT>

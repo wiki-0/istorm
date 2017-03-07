@@ -1,0 +1,43 @@
+#{extends 'example.html' /}
+<div>
+	<div id="crudListTable">
+		#{crud.table fields:['id','设备名称','机房位置'] }
+			#{crud.custom 'id'} 
+				<input type="checkbox" class="i-checks" name="nodeId" value="${object.id}">
+			#{/crud.custom}
+			#{crud.custom '设备名称'}
+				${object.T_NODE_TYPE_NAME}
+			#{/crud.custom}
+			#{crud.custom '机房位置'}
+				${object.ROOM_POSITION}
+			#{/crud.custom}
+		#{/crud.table}
+	</div>
+	<div id="crudListPagination">#{crud.pagination /}</div>
+</div>
+<script type="text/javascript">
+
+	$(document).ready(function() {
+		$('.i-checks').iCheck({
+			checkboxClass : 'icheckbox_square-green',
+			radioClass : 'iradio_square-green',
+		});
+		$('.i-checks').on('ifChanged', function(event) {
+			var objList = document.getElementsByName("nodeId");
+			var returnStr = '';
+			for (var i = 0; i < objList.length; i++) {
+				var obj = objList[i];
+				if (obj.type == 'checkbox' && obj.checked) {
+					if (returnStr == '') {
+						returnStr = obj.value + ' ';
+					} else {
+						returnStr = returnStr + obj.value + ' ';
+					}//end if/else   
+				}//if(obj.type=='checkbox' && obj.checked)   
+			}//end for   
+			parent.document.getElementById("nodeIds").value = returnStr;
+			return returnStr;
+		});
+	});
+</script>
+

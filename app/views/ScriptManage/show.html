@@ -1,0 +1,451 @@
+#{extends 'example.html' /}
+
+<style type="text/css">
+  .crudDelete button {
+    color: #fff;
+    border: none;
+    margin: 0;
+    position: fixed;
+    top: 0;
+    right: 17;
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .crudReturn button {
+    border: none;
+    margin: 0;
+    position: fixed;
+    top: 0;
+    right: 87;
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+    cursor: pointer;
+  }
+</style>
+<br><br>
+<div class="container">
+  #{form action:@saveUpdate(object._key()), enctype:'multipart/form-data', class:'form form-horizontal validate-form'}
+  #{crud.form fields:['T_SCRIPT_NAME','T_SCRIPT_FILENAME','T_SCRIPT_COMMAND','T_SCRIPT_TYPE','T_SCRIPT_USER','T_SCRIPT_DATE','T_SCRIPT_GROUP_ID','T_USER_GROUP_ID','T_ALARM_THRESHOLD_TYPE','TAlarmLVs']}
+   #{crud.custom 'T_SCRIPT_NAME'}
+  <label class="control-label col-sm-3">脚本名称：</label>
+  <div class="col-sm-4 controls">
+   <input type="text" class="form-control" name="object.T_SCRIPT_NAME" value="${object.T_SCRIPT_NAME}" id="T_SCRIPT_NAME" maxlength="20" onblur="onlyName()">
+  </div>
+  #{/crud.custom}
+
+   #{crud.custom 'T_SCRIPT_FILENAME'}
+  <label class="control-label col-sm-3">脚本文件名：</label>
+  <div class="col-sm-4 controls">
+   <input type="text" class="form-control" name="object.T_SCRIPT_FILENAME" value="${object.T_SCRIPT_FILENAME}" id="T_SCRIPT_FILENAME" maxlength="20">
+  </div>
+  #{/crud.custom}
+
+  #{crud.custom 'T_SCRIPT_COMMAND'}
+  <label class="control-label col-sm-3">脚本内容：</label>
+  <div class="col-sm-4 controls">
+   <textarea class="form-control" rows="7" id="T_SCRIPT_COMMAND" name="object.T_SCRIPT_COMMAND">${object.T_SCRIPT_COMMAND}</textarea>
+  </div>
+  #{/crud.custom}
+
+  #{crud.custom 'T_SCRIPT_TYPE'}
+  <label class="control-label col-sm-3">脚本类型：</label>
+  <div class="col-sm-4 controls">
+  <select class="form-control" name="object.T_SCRIPT_TYPE">
+    <option value="bat"
+    %{
+      if(object.T_SCRIPT_TYPE=="bat"){
+    }%
+        selected="selected"
+    %{
+    }
+    }%
+    >bat脚本</option>
+    <option value="vbs"
+    %{
+      if(object.T_SCRIPT_TYPE=="vbs"){
+    }%
+        selected="selected"
+    %{
+    }
+    }%
+    >vbs脚本</option>
+    <option value="ps1"
+    %{
+      if(object.T_SCRIPT_TYPE=="ps1"){
+    }%
+        selected="selected"
+    %{
+    }
+    }%
+    >powershell脚本</option>
+    <option value="sh"
+    %{
+      if(object.T_SCRIPT_TYPE=="sh"){
+    }%
+        selected="selected"
+    %{
+    }
+    }%
+    >shell脚本</option>
+    <option value="command"
+    %{
+      if(object.T_SCRIPT_TYPE=="command"){
+    }%
+        selected="selected"
+    %{
+    }
+    }%
+    >command</option>
+  </select>
+  </div>
+  #{/crud.custom}
+  #{crud.custom 'T_SCRIPT_USER'}
+  <label class="control-label col-sm-3">创建人：</label>
+  <div class="col-sm-4 controls">
+  <input type="text" value="${object.T_SCRIPT_USER}" readonly class="form-control"/>
+  </div>
+  #{/crud.custom}
+
+  #{crud.custom 'T_SCRIPT_DATE'}
+  <label class="control-label col-sm-3">创建时间：</label>
+  <div class="col-sm-4 controls">
+  <input type="text" value="${object.T_SCRIPT_DATE}" readonly class="form-control"/>
+  </div>
+  #{/crud.custom}
+  #{crud.custom 'T_SCRIPT_GROUP_ID'}
+  <label class="control-label col-sm-3">脚本分组：</label>
+  <div class="col-sm-4 controls">
+    <select class="form-control" name="object.T_SCRIPT_GROUP_ID">
+      <option value="">未分组</option>
+       #{list items:tScriptGroups, as:'scriptGroup'}
+         <option value="&{scriptGroup.id}"
+           %{
+             if(object.T_SCRIPT_GROUP_ID != null ){
+             if(object.T_SCRIPT_GROUP_ID==scriptGroup.id){
+           }%
+               selected="selected"
+           %{
+           }}
+           }%
+           >${scriptGroup.T_SCRIPT_GROUP_NAME}</option>
+       #{/list}
+      </select>
+  </div>
+  #{/crud.custom}
+
+  #{crud.custom 'JOBS'}
+  #{/crud.custom}
+
+  #{crud.custom 'T_USER_GROUP_ID'}
+  <label class="control-label col-sm-3">用户组：</label>
+  <div class="col-sm-4 controls">
+   <select class="form-control" name="object.T_USER_GROUP_ID">
+      <option value="">未分组</option>
+       #{list items:tUserGroups, as:'userGroup'}
+         <option value="&{userGroup.id}"
+           %{
+             if(object.T_USER_GROUP_ID != null ){
+             if(object.T_USER_GROUP_ID==userGroup.id){
+           }%
+               selected="selected"
+           %{
+           }}
+           }%
+           >${userGroup.T_GROUP_NAME}</option>
+       #{/list}
+      </select>
+  </div>
+  #{/crud.custom}
+
+  #{crud.custom 'T_ALARM_THRESHOLD_TYPE'}
+  <label class="control-label col-sm-3">阈值或关键字：</label>
+  <div class="col-sm-4 controls">
+    <select class="form-control" name="object.T_ALARM_THRESHOLD_TYPE" id="T_ALARM_THRESHOLD_TYPE" onchange="valueChange()">
+      <option value="0"
+      %{
+        if(object.T_ALARM_THRESHOLD_TYPE=="0"){
+      }%
+          selected="selected"
+      %{
+      }
+      }%
+      >阈值</option>
+      <option value="1"
+      %{
+        if(object.T_ALARM_THRESHOLD_TYPE=="1"){
+      }%
+          selected="selected"
+      %{
+      }
+      }%
+      >关键字</option>
+    </select>
+  </div>
+  #{/crud.custom}
+#{crud.custom 'TAlarmLVs'}
+<div id="TAlarmLVs"></div>
+#{/crud.custom}
+  #{/crud.form }
+  <div class="control-label col-sm-2 col-sm-offset-4">
+    <input type="submit" name="_save" onclick="return submitValidate()" class="btn btn-primary btn-block" value="&{'crud.save', type.modelName}" />
+  </div>
+  #{/form}
+</div>
+<div>
+  <div class="crudReturn">
+    <button class="btn btn-primary" onclick="top.location='@{ScriptManage.index()}'"><i class="fa fa-chevron-left">&nbsp;返回</i></button>
+  </div>
+  <div class="crudDelete">
+    <button class="btn btn-danger" data-toggle="modal" data-target="#modal-sizes-1" id="btnDelete"><i class="fa fa-times">&nbsp;&{'crud.delete', type.modelName}</i></button>
+  </div>
+</div>
+<div id="modal-sizes-1" class="modal fade" tabindex="-1" role="dialog" style="display: none;">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+         </button>
+        <h4 class="modal-title">是否删除脚本</h4>
+      </div>
+      <div class="modal-body">请确认是否删除脚本?</div>
+      <div class="modal-footer">
+        <form action="@{delete(object._key())}" method="post" role="form">
+          <button class="btn btn-danger">确认</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function valueChange() {
+  var T_ALARM_THRESHOLD_TYPE = $("#T_ALARM_THRESHOLD_TYPE").val();
+  if (T_ALARM_THRESHOLD_TYPE == "0") {
+    var opt0 = '';
+    opt0 +="<option value='<'>&lt;</option>"
+    opt0 +="<option value='<＝'>&lt;=</option>"
+    opt0 +="<option value='='>=</option>"
+    opt0 +="<option value='>='>&gt;=</option>"
+    opt0 +="<option value='>'>&gt;</option>"
+    opt0 +="<option value='!='>!=</option>"
+
+    $("#T_ALARM_RELATION1").html(opt0);
+    $("#T_ALARM_RELATION2").html(opt0);
+    $("#T_ALARM_RELATION3").html(opt0);
+    $("#T_ALARM_RELATION4").html(opt0);
+  }
+  if (T_ALARM_THRESHOLD_TYPE == "1") {
+    var opt1 = '';
+    opt1 +="<option value='like'>like</option>"
+    opt1 +="<option value='and'>and</option>"
+    opt1 +="<option value='or'>or</option>"
+    opt1 +="<option value='not'>not</option>"
+
+    $("#T_ALARM_RELATION1").html(opt1);
+    $("#T_ALARM_RELATION2").html(opt1);
+    $("#T_ALARM_RELATION3").html(opt1);
+    $("#T_ALARM_RELATION4").html(opt1);
+  }
+  var url1 = "@{ScriptManage.getT_ALARM_RELATION()}"+"?id="+${object.id};
+  $.post(url1, function(data) {
+    var myData = eval('(' + data + ')');
+    if (T_ALARM_THRESHOLD_TYPE == myData.T_ALARM_THRESHOLD_TYPE) {
+      if (typeof(myData.T_ALARM_RELATION1) != "undefined") {
+        $("#T_ALARM_RELATION1").val(myData.T_ALARM_RELATION1);
+      }
+      if (typeof(myData.T_ALARM_RELATION2) != "undefined") {
+        $("#T_ALARM_RELATION2").val(myData.T_ALARM_RELATION2);
+      }
+      if (typeof(myData.T_ALARM_RELATION3) != "undefined") {
+        $("#T_ALARM_RELATION3").val(myData.T_ALARM_RELATION3);
+      }
+      if (typeof(myData.T_ALARM_RELATION4) != "undefined") {
+        $("#T_ALARM_RELATION4").val(myData.T_ALARM_RELATION4);
+      }
+    }
+  });
+}
+onlyName = function(){
+  var url2 = "@{ScriptManage.getScript()}";
+  $.post(url2, function(data) {
+                var myData = eval('(' + data + ')');
+                for (var i = 0; i < myData.length; i++) {
+                  if($("#T_SCRIPT_NAME").val() != "${object.T_SCRIPT_NAME}"){
+                    if ( $("#T_SCRIPT_NAME").val()==myData[i].T_SCRIPT_NAME) {
+                      window.parent.toastrStr('脚本名称已存在，请更换名称!');
+                  }
+                  }
+                }
+            });
+}
+
+submitValidate = function() {
+    var flag= true;
+
+      var obj = $("#T_SCRIPT_NAME").val();
+      if (obj == '') {
+        window.parent.toastrStr('脚本名称不能为空！');
+        flag = false;
+      }
+      var obj = $("#T_SCRIPT_FILENAME").val();
+      if (obj == '') {
+        window.parent.toastrStr('脚本文件名称不能为空！');
+        flag = false;
+      }
+      var obj = $("#T_SCRIPT_COMMAND").val();
+      if (obj == '') {
+        window.parent.toastrStr('脚本内容不能为空！');
+        flag = false;
+      }
+
+    var url2 = "@{ScriptManage.getScript()}";
+  $.ajax({
+          type : "post",
+          url : url2,
+          async : false,
+          success : function(data){
+            var myData = eval('(' + data + ')');
+                for (var i = 0; i < myData.length; i++) {
+                  if($("#T_SCRIPT_NAME").val() != "${object.T_SCRIPT_NAME}"){
+                    if ( $("#T_SCRIPT_NAME").val()==myData[i].T_SCRIPT_NAME) {
+                      window.parent.toastrStr('脚本名称已存在，请更换名称!');
+                        flag = false;
+                  }
+                  }
+                }
+          }
+          });
+
+  return flag;
+    }
+$(document).ready(function(){
+var opt= '';
+opt+='<div class="form-group">';
+opt+='<label class="control-label col-sm-3">严重：</label>';
+opt+='<div class="col-sm-4 controls">';
+opt+='<input type="text" id="T_ALARM_THRESHOLD1" value="" class="form-control" name="T_ALARM_THRESHOLD1" maxlength="20"/>';
+opt+='</div>';
+opt+='<label class="control-label">关系：</label>';
+opt+='<div class="col-sm-4 controls">'
+opt+='<select id="T_ALARM_RELATION1" name="T_ALARM_RELATION1" class="form-control"></select>'
+opt+='</div>'
+opt+='</div>';
+
+opt+='<div class="form-group">';
+opt+='<label class="control-label col-sm-3">主要：</label>';
+opt+='<div class="col-sm-4 controls">';
+opt+='<input type="text" id="T_ALARM_THRESHOLD2" value="" class="form-control" name="T_ALARM_THRESHOLD2" maxlength="20"/>';
+opt+='</div>';
+opt+='<label class="control-label">关系：</label>';
+opt+='<div class="col-sm-4 controls">'
+opt+='<select id="T_ALARM_RELATION2" name="T_ALARM_RELATION2" class="form-control"></select>'
+opt+='</div>'
+opt+='</div>';
+
+opt+='<div class="form-group">';
+opt+='<label class="control-label col-sm-3">次要：</label>';
+opt+='<div class="col-sm-4 controls">';
+opt+='<input type="text" id="T_ALARM_THRESHOLD3" value="" class="form-control" name="T_ALARM_THRESHOLD3" maxlength="20"/>';
+opt+='</div>';
+opt+='<label class="control-label">关系：</label>';
+opt+='<div class="col-sm-4 controls">'
+opt+='<select id="T_ALARM_RELATION3" name="T_ALARM_RELATION3" class="form-control"></select>'
+opt+='</div>'
+opt+='</div>';
+
+opt+='<div class="form-group">';
+opt+='<label class="control-label col-sm-3">提示：</label>';
+opt+='<div class="col-sm-4 controls">';
+opt+='<input type="text" id="T_ALARM_THRESHOLD4" value="" class="form-control" name="T_ALARM_THRESHOLD4" maxlength="20"/>';
+opt+='</div>';
+opt+='<label class="control-label">关系：</label>';
+opt+='<div class="col-sm-4 controls">'
+opt+='<select id="T_ALARM_RELATION4" name="T_ALARM_RELATION4" class="form-control"></select>'
+opt+='</div>'
+opt+='</div>';
+
+$("#TAlarmLVs").parent().hide();
+$("#TAlarmLVs").parent().after(opt);
+
+var strT_ALARM_LEVEL = "${object.TAlarmLVs.T_ALARM_LEVEL}";
+var strT_ALARM_LEVELSUB = strT_ALARM_LEVEL.slice(1,-1);
+var arrT_ALARM_LEVEL = strT_ALARM_LEVELSUB.split(',');
+
+var strT_ALARM_THRESHOLD = "${object.TAlarmLVs.T_ALARM_THRESHOLD}";
+var strT_ALARM_THRESHOLDSUB = strT_ALARM_THRESHOLD.slice(1,-1);
+var arrT_ALARM_THRESHOLD = strT_ALARM_THRESHOLDSUB.split(',');
+
+for( var i = 0 ;i<arrT_ALARM_LEVEL.length;i++)
+{
+
+	if ($.trim(arrT_ALARM_LEVEL[i])=="严重") {
+		$("#T_ALARM_THRESHOLD1").val($.trim(arrT_ALARM_THRESHOLD[i]));
+	}
+	if ($.trim(arrT_ALARM_LEVEL[i])=="主要") {
+		$("#T_ALARM_THRESHOLD2").val($.trim(arrT_ALARM_THRESHOLD[i]));
+	}
+	if ($.trim(arrT_ALARM_LEVEL[i])=="次要") {
+		$("#T_ALARM_THRESHOLD3").val($.trim(arrT_ALARM_THRESHOLD[i]));
+	}
+	if ($.trim(arrT_ALARM_LEVEL[i])=="提示") {
+		$("#T_ALARM_THRESHOLD4").val($.trim(arrT_ALARM_THRESHOLD[i]));
+	}
+}
+var url ="@{ScriptManage.getInJob()}?id="+${object._key()};
+$("#btnDelete").attr("disabled",false);
+$.post(url, function(data) {
+  var myData = eval('(' + data + ')');
+  if (myData.id=="true") {
+    window.parent.toastrStr('脚本在任务中，无法删除');
+    $("#btnDelete").attr("disabled",true);
+  }
+});
+var T_ALARM_THRESHOLD_TYPE = $("#T_ALARM_THRESHOLD_TYPE").val();
+if(T_ALARM_THRESHOLD_TYPE == "0"){
+  var opt0 = '';
+  opt0 +="<option value='<'>&lt;</option>"
+  opt0 +="<option value='<＝'>&lt;=</option>"
+  opt0 +="<option value='='>=</option>"
+  opt0 +="<option value='>='>&gt;=</option>"
+  opt0 +="<option value='>'>&gt;</option>"
+  opt0 +="<option value='!='>!=</option>"
+
+  $("#T_ALARM_RELATION1").html(opt0);
+  $("#T_ALARM_RELATION2").html(opt0);
+  $("#T_ALARM_RELATION3").html(opt0);
+  $("#T_ALARM_RELATION4").html(opt0);
+}
+
+if(T_ALARM_THRESHOLD_TYPE == "1"){
+  var opt1 = '';
+  opt1 +="<option value='like'>like</option>"
+  opt1 +="<option value='and'>and</option>"
+  opt1 +="<option value='or'>or</option>"
+  opt1 +="<option value='not'>not</option>"
+
+  $("#T_ALARM_RELATION1").html(opt1);
+  $("#T_ALARM_RELATION2").html(opt1);
+  $("#T_ALARM_RELATION3").html(opt1);
+  $("#T_ALARM_RELATION4").html(opt1);
+}
+
+var url1 = "@{ScriptManage.getT_ALARM_RELATION()}"+"?id="+${object.id};
+$.post(url1, function(data) {
+  var myData = eval('(' + data + ')');
+  if (typeof(myData.T_ALARM_RELATION1) != "undefined") {
+    $("#T_ALARM_RELATION1").val(myData.T_ALARM_RELATION1);
+  }
+  if (typeof(myData.T_ALARM_RELATION2) != "undefined") {
+    $("#T_ALARM_RELATION2").val(myData.T_ALARM_RELATION2);
+  }
+  if (typeof(myData.T_ALARM_RELATION3) != "undefined") {
+    $("#T_ALARM_RELATION3").val(myData.T_ALARM_RELATION3);
+  }
+  if (typeof(myData.T_ALARM_RELATION4) != "undefined") {
+    $("#T_ALARM_RELATION4").val(myData.T_ALARM_RELATION4);
+  }
+});
+});
+</script>

@@ -1,0 +1,460 @@
+#{extends 'example.html' /}
+
+<style type="text/css">
+.crudDelete button {
+	color: #fff;
+	border: none;
+	margin: 0;
+	position: fixed;
+	top: 0;
+	right: 17;
+	-moz-border-radius: 8px;
+	-webkit-border-radius: 8px;
+	cursor: pointer;
+}
+
+.crudReturn button {
+	border: none;
+	margin: 0;
+	position: fixed;
+	top: 0;
+	right: 87;
+	-moz-border-radius: 8px;
+	-webkit-border-radius: 8px;
+	cursor: pointer;
+}
+</style>
+<br>
+<br>
+<div class="container">
+	#{form action:@save(object._key()), enctype:'multipart/form-data',class:'form form-horizontal validate-form'}
+	#{crud.form }
+
+	#{crud.custom 'T_NODE_NAME'}
+	<label class="control-label col-sm-3 col-sm-3">设备名称：</label>
+	<div class="col-sm-4 controls">
+		<input type="text" maxlength="20" class="form-control" id="T_NODE_NAME" name="object.T_NODE_NAME" value="${object.T_NODE_NAME}" onblur="onlyName()">
+	</div>
+	#{/crud.custom}
+
+	#{crud.custom 'T_NODE_IP'}
+	<label class="control-label col-sm-3 col-sm-3">IP地址：</label>
+	<div class="col-sm-4 controls">
+		<input type="text" maxlength="15" class="form-control" id="T_NODE_IP" name="object.T_NODE_IP" value="${object.T_NODE_IP}" onblur="onlyName2()">
+	</div>
+	#{/crud.custom}
+
+	#{crud.custom 'T_NODE_ACCOUNT'}
+	<label class="control-label col-sm-3 col-sm-3">登入帐号：</label>
+	<div class="col-sm-4 controls">
+		<input type="text" maxlength="20" class="form-control" id="T_NODE_ACCOUNT" name="object.T_NODE_ACCOUNT" value="${object.T_NODE_ACCOUNT}">
+	</div>
+	#{/crud.custom}
+
+	#{crud.custom 'T_NODE_PWD'}
+	<label class="control-label col-sm-3 col-sm-3">登入密码：</label>
+	<div class="col-sm-4 controls">
+		<input type="password" maxlength="20" class="form-control" id="T_NODE_PWD" name="object.T_NODE_PWD" value="${object.T_NODE_PWD}">
+	</div>
+	#{/crud.custom}
+
+	#{crud.custom 'T_NODE_LOGINTYPE'}
+	<label class="control-label col-sm-3 col-sm-3">登入方式：</label>
+	<div class="col-sm-4 controls">
+		<select class="form-control" name="object.T_NODE_LOGINTYPE">
+		<option value="powershell"
+			%{
+				if(object.T_NODE_LOGINTYPE == "powershell"){
+				}%
+					selected="selected"
+					%{
+					}
+			}%
+			>powershell</option>
+			<option value="ssh"
+			%{
+				if(object.T_NODE_LOGINTYPE == "ssh"){
+				}%
+					selected="selected"
+					%{
+					}
+			}%
+			>ssh</option>
+			<option value="telnet"
+			%{
+				if(object.T_NODE_LOGINTYPE == "telnet"){
+
+				}%
+					selected="selected"
+					%{}
+			}%
+			>telnet</option>
+		</select>
+	</div>
+	#{/crud.custom}
+
+	#{crud.custom 'T_NODE_SYSTEM'}
+	<label class="control-label col-sm-3 col-sm-3">业务系统：</label>
+	<div class="col-sm-4 controls">
+		<select class="form-control" name="object.T_NODE_SYSTEM" id="T_NODE_SYSTEMSHOW">
+		<option value="">未选择</option>
+       #{list items:T_NODE_SYSTEMS, as:'T_NODE_SYSTEM'}
+         <option value="${T_NODE_SYSTEM.T_DD_VALUE}"
+           %{
+             if(object.T_NODE_SYSTEM != null ){
+             if(object.T_NODE_SYSTEM==T_NODE_SYSTEM.T_DD_VALUE){
+           }%
+               selected="selected"
+           %{
+           }}
+           }%
+           >${T_NODE_SYSTEM.T_DD_VALUE}</option>
+       #{/list}
+		</select>
+	</div>
+	#{/crud.custom}
+
+	#{crud.custom 'T_NODE_CONTACTS'}
+  	<label class="control-label col-sm-3 col-sm-3">设备负责人：</label>
+  	<div class="col-sm-4 controls">
+    	<select class="form-control" name="object.T_NODE_CONTACTS">
+      	<option value="">未选择</option>
+       #{list items:tUsers, as:'tUser'}
+         <option value="${tUser.T_USER_DISPLAY_NAME}"
+           %{
+             if(object.T_NODE_CONTACTS != null ){
+             if(object.T_NODE_CONTACTS==tUser.T_USER_DISPLAY_NAME){
+           }%
+               selected="selected"
+           %{
+           }}
+           }%
+           >${tUser.T_USER_DISPLAY_NAME}</option>
+       #{/list}
+      </select>
+  </div>
+  #{/crud.custom}
+
+
+
+	#{crud.custom 'T_NODE_OS'}
+	<label class="control-label col-sm-3 col-sm-3">操作系统：</label>
+	<div class="col-sm-4 controls">
+		<select class="form-control" name="object.T_NODE_OS" id="T_NODE_OSSHOW">
+       #{list items:T_NODE_OSS, as:'T_NODE_OS'}
+         <option value="${T_NODE_OS.T_DD_VALUE}"
+           %{
+             if(object.T_NODE_OS != null ){
+             if(object.T_NODE_OS==T_NODE_OS.T_DD_VALUE){
+           }%
+               selected="selected"
+           %{
+           }}
+           }%
+           >${T_NODE_OS.T_DD_VALUE}</option>
+       #{/list}
+		</select>
+	</div>
+	#{/crud.custom}
+
+	#{crud.custom 'T_NODE_VENDOR'}
+	<label class="control-label col-sm-3 col-sm-3">厂商：</label>
+	<div class="col-sm-4 controls">
+		<select class="form-control" name="object.T_NODE_VENDOR" id="T_NODE_VENDORSHOW">
+		<option value="">未选择</option>
+       #{list items:T_NODE_VENDORS, as:'T_NODE_VENDOR'}
+         <option value="${T_NODE_VENDOR.T_DD_VALUE}"
+           %{
+             if(object.T_NODE_VENDOR != null ){
+             if(object.T_NODE_VENDOR==T_NODE_VENDOR.T_DD_VALUE){
+           }%
+               selected="selected"
+           %{
+           }}
+           }%
+           >${T_NODE_VENDOR.T_DD_VALUE}</option>
+       #{/list}
+		</select>
+	</div>
+	#{/crud.custom}
+
+	#{crud.custom 'T_NODE_DEVICETYPE'}
+	<label class="control-label col-sm-3 col-sm-3">设备类型：</label>
+	<div class="col-sm-4 controls">
+		<select class="form-control" name="object.T_NODE_DEVICETYPE">
+			<option value="x86物理机"
+			%{
+      			if(object.T_NODE_DEVICETYPE=="x86物理机"){
+    		}%
+       			 selected="selected"
+    		%{
+   				 }
+    		}%
+    		>x86物理机</option>
+			<option value="小型机"
+			%{
+      			if(object.T_NODE_DEVICETYPE=="小型机"){
+    		}%
+       			 selected="selected"
+    		%{
+   				 }
+    		}%
+			>小型机</option>
+			<option value="VMWare"
+			%{
+      			if(object.T_NODE_DEVICETYPE=="VMWare"){
+    		}%
+       			 selected="selected"
+    		%{
+   				 }
+    		}%
+    		>VMWare</option>
+			<option value="Hyper-V"
+			%{
+      			if(object.T_NODE_DEVICETYPE=="Hyper-V"){
+    		}%
+       			 selected="selected"
+    		%{
+   				 }
+    		}%
+			>Hyper-V</option>
+			<option value="交换机"
+			%{
+      			if(object.T_NODE_DEVICETYPE=="交换机"){
+    		}%
+       			 selected="selected"
+    		%{
+   				 }
+    		}%>交换机</option>
+			<option value="带外管理卡"
+			%{
+      			if(object.T_NODE_DEVICETYPE=="带外管理卡"){
+    		}%
+       			 selected="selected"
+    		%{
+   				 }
+    		}%>带外管理卡</option>
+		</select>
+	</div>
+	#{/crud.custom}
+
+	#{crud.custom 'T_NODE_LOCALPATH'}
+	<label class="control-label col-sm-3 col-sm-3">上传脚本保存目录：</label>
+	<div class="col-sm-4 controls">
+		<input type="text" maxlength="20" class="form-control" id="T_NODE_LOCALPATH" name="object.T_NODE_LOCALPATH" value="${object.T_NODE_LOCALPATH}">
+	</div>
+	#{/crud.custom}
+
+	#{crud.custom 'T_NODE_UPLOADTYPE'}
+	<label class="control-label col-sm-3 col-sm-3">上传脚本方式：</label>
+	<div class="col-sm-4 controls">
+		<select class="form-control" name="object.T_NODE_UPLOADTYPE">
+			<option value="FTP"
+			%{
+      			if(object.T_NODE_UPLOADTYPE=="FTP"){
+    		}%
+       			 selected="selected"
+    		%{
+   				 }
+    		}%>FTP</option>
+			<option value="SFTP"
+			%{
+      			if(object.T_NODE_UPLOADTYPE=="SFTP"){
+    		}%
+       			 selected="selected"
+    		%{
+   				 }
+    		}%>SFTP</option>
+		</select>
+	</div>
+	#{/crud.custom}
+
+	#{crud.custom 'T_NODE_ROOM'}
+	<label class="control-label col-sm-3 col-sm-3">机房：</label>
+	<div class="col-sm-4 controls">
+		<input type="text" maxlength="20" class="form-control" id="T_NODE_ROOM" name="object.T_NODE_ROOM" value="${object.T_NODE_ROOM}">
+	</div>
+	#{/crud.custom}
+
+	#{crud.custom 'T_NODE_SN'}
+	<label class="control-label col-sm-3 col-sm-3">序列号：</label>
+	<div class="col-sm-4 controls">
+		<input type="text" maxlength="20" class="form-control" id="T_NODE_SN" name="object.T_NODE_SN" value="${object.T_NODE_SN}">
+	</div>
+	#{/crud.custom}
+
+	#{crud.custom 'T_NODE_MODEL'}
+	<label class="control-label col-sm-3 col-sm-3">型号：</label>
+	<div class="col-sm-4 controls">
+		<input type="text" maxlength="20" class="form-control" id="T_NODE_MODEL" name="object.T_NODE_MODEL" value="${object.T_NODE_MODEL}">
+	</div>
+	#{/crud.custom}
+
+	#{crud.custom 'T_NODE_DEPARTMENT'}
+	<label class="control-label col-sm-3 col-sm-3">部门：</label>
+	<div class="col-sm-4 controls">
+		<select class="form-control" name="object.T_NODE_DEPARTMENT" id="T_NODE_DEPARTMENTSHOW">
+		<option value="">未选择</option>
+       #{list items:T_NODE_DEPARTMENTS, as:'T_NODE_DEPARTMENT'}
+         <option value="${T_NODE_DEPARTMENT.T_DD_VALUE}"
+           %{
+             if(object.T_NODE_DEPARTMENT != null ){
+             if(object.T_NODE_DEPARTMENT==T_NODE_DEPARTMENT.T_DD_VALUE){
+           }%
+               selected="selected"
+           %{
+           }}
+           }%
+           >${T_NODE_DEPARTMENT.T_DD_VALUE}</option>
+       #{/list}
+		</select>
+	</div>
+	#{/crud.custom}
+
+	#{/crud.form }
+	<div class="control-label col-sm-2 col-sm-offset-4">
+		<input type="submit" name="_save"  onclick="return submitValidate()" class="btn btn-primary btn-block"
+			value="&{'crud.save', type.modelName}" />
+	</div>
+	#{/form}
+</div>
+
+<div>
+	<div class="crudReturn">
+		<button class="btn btn-primary" onclick="top.location.href='@{TNodes.index()}'">
+			<i class="fa fa-chevron-left">&nbsp;返回</i>
+		</button>
+	</div>
+	<div class="crudDelete">
+		<button class="btn btn-danger" data-toggle="modal"
+			data-target="#modal-sizes-1" id="deletebtn">
+			<i class="fa fa-times">&nbsp;&{'crud.delete', type.modelName}</i>
+		</button>
+	</div>
+</div>
+<div id="modal-sizes-1" class="modal fade" tabindex="-1" role="dialog"
+	style="display: none;">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-hidden="true">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				</button>
+				<h4 class="modal-title">是否删除设备</h4>
+			</div>
+			<div class="modal-body">请确认是否删除设备?</div>
+			<div class="modal-footer">
+				<form action="@{TNodes.delete(object._key())}" method="post"
+					role="form">
+					<button class="btn btn-danger">确定</button>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	 onlyName = function(){
+    	var url = "@{TNodes.getTNodes()}";
+    	$.post(url,function(data){
+    		var myData = eval('(' + data + ')');
+    		for(var i=0;i<myData.length;i++)
+    		{
+    			if($("#T_NODE_NAME").val() != "${object.T_NODE_NAME}"){
+    				if($("#T_NODE_NAME").val() == myData[i].T_NODE_NAME){
+    				toastr.error('设备名称已经存在，请更换名称！ ');
+    			}
+    			}
+    		}
+    	});
+    }
+
+    onlyName2 = function(){
+    	var url2 = "@{TNodes.getTNodes()}";
+    	$.post(url2,function(data){
+    		var myData = eval('(' + data + ')');
+    		for(var i=0;i<myData.length;i++)
+    		{
+    			if($("#T_NODE_IP").val() != "${object.T_NODE_IP}"){
+    				if($("#T_NODE_IP").val() == myData[i].T_NODE_IP){
+    				toastr.error('设备IP已经存在，请更换名称!  ');
+    			}
+    			}
+  			}
+    	});
+    }
+
+
+
+   submitValidate = function() {
+		var flag= true;
+		var obj = $("#T_NODE_NAME").val();
+		if (obj == '') {
+			toastr.error('设备名称不能为空！');
+			flag = false;
+		}
+		var obj = $("#T_NODE_PWD").val();
+		if(obj == ''){
+			toastr.error('登入密码不能为空！ ');
+			flag = false;
+		}
+
+		var obj = $("#T_NODE_IP").val();
+		if(obj == ''){
+			toastr.error('IP地址不能为空！');
+			flag = false;
+		}else{
+			var val = /((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$/;
+			var vald = val.test(obj);
+			if (vald==false) {
+				toastr.error('IP地址不符合要求！');
+				flag = false;
+			}
+
+		}
+
+		 var url = "@{TNodes.getTNodes()}";
+		$.ajax({
+          type : "post",
+          url : url,
+          async : false,
+          success : function(data){
+            var myData = eval('(' + data + ')');
+                for (var i = 0; i < myData.length; i++) {
+                	if($("#T_NODE_NAME").val() != "${object.T_NODE_NAME}"){
+    				if($("#T_NODE_NAME").val() == myData[i].T_NODE_NAME){
+    				toastr.error('设备名称已经存在，请更换名称！ ');
+    			}
+    			}
+                	if($("#T_NODE_IP").val() != "${object.T_NODE_IP}"){
+    				if($("#T_NODE_IP").val() == myData[i].T_NODE_IP){
+    				toastr.error('设备IP已经存在，请更换名称!  ');
+    			}
+    			}
+                }
+          }
+          });
+
+	return flag;
+
+	}
+
+
+	$(document).ready(
+			function() {
+					$("#deletebtn").attr("disabled", false);
+					var url5 = "@{TNodes.getT_RESULT()}?nid="+${object._key()};
+
+					$.post(url5, function(data) {
+							var myData = eval('(' + data + ')');
+							var str = myData.T_NODE_REPORT;
+							if (str == "true") {
+								$("#deletebtn").attr("disabled", true);
+								toastr.error('该设备已经存在巡检结果，无法进行删除，如果需要删除请联系管理员。');
+							}
+					});
+
+
+			});
+</script>

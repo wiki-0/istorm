@@ -1,0 +1,8 @@
+#{extends 'example.html' /}
+	<div>
+        #{crud.table fields:['T_USER_DEPARTMENT','T_USER_NAME']} 
+        #{/crud.table}
+    	<div id="crudListPagination">
+        #{crud.pagination /}
+    	</div>
+	</div>

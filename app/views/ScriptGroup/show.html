@@ -1,0 +1,124 @@
+#{extends 'example.html' /}
+
+
+<style type="text/css">
+.crudDelete button {
+ color: #fff;
+ border: none;
+ margin: 0;
+ position: fixed;
+ top: 0;
+ right: 17;
+ -moz-border-radius: 8px;
+ -webkit-border-radius: 8px;
+ cursor: pointer;
+}
+
+.crudReturn button {
+ border: none;
+ margin: 0;
+ position: fixed;
+ top: 0;
+ right: 87;
+ -moz-border-radius: 8px;
+ -webkit-border-radius: 8px;
+ cursor: pointer;
+}
+</style>
+<br><br>
+<div class="container">
+ #{form action:@save(object._key()), enctype:'multipart/form-data', class:'form form-horizontal validate-form'}
+ #{crud.form }
+
+  #{crud.custom 'T_SCRIPT_GROUP_NAME'}
+  <label class="control-label col-sm-3">脚本分组名称：</label>
+  <div class="col-sm-4 controls">
+  <input type="text" value="${object.T_SCRIPT_GROUP_NAME}" class="form-control" name="object.T_SCRIPT_GROUP_NAME" maxlength="20" id="T_SCRIPT_GROUP_NAME" onblur="onlyName()"/>
+  </div>
+  #{/crud.custom}
+
+  #{crud.custom 'T_SCRIPT_GROUP_DESC'}
+  <label class="control-label col-sm-3">脚本分组描述：</label>
+  <div class="col-sm-4 controls">
+  <textarea class="form-control" name="object.T_SCRIPT_GROUP_DESC" rows="3" maxlength="200">${object.T_SCRIPT_GROUP_DESC}</textarea>
+  </div>
+  #{/crud.custom}
+
+ #{/crud.form }
+ <div class="control-label col-sm-2 col-sm-offset-4">
+   <input type="submit" name="_save"  class="btn btn-primary btn-block" value="&{'crud.save', type.modelName}" onclick="return submitValidate()" />
+ </div>
+ #{/form}
+</div>
+<div>
+ <div class="crudReturn">
+ <button class="btn btn-primary" onclick="top.location='@{ScriptGroup.index()}'"><i class="fa fa-chevron-left">&nbsp;返回</i></button>
+ </div>
+ <div class="crudDelete">
+   <button class="btn btn-danger" data-toggle="modal" data-target="#modal-sizes-1"><i class="fa fa-times">&nbsp;&{'crud.delete', type.modelName}</i></button>
+ </div>
+</div>
+<div id="modal-sizes-1" class="modal fade" tabindex="-1" role="dialog" style="display: none;">
+ <div class="modal-dialog modal-sm">
+   <div class="modal-content">
+     <div class="modal-header">
+     <button type="button" class="close" data-dismiss="modal"
+           aria-hidden="true">
+           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+         </button>
+     <h4 class="modal-title">是否删除脚本分组</h4>
+     </div>
+     <div class="modal-body">请确认是否删除脚本分组?</div>
+     <div class="modal-footer">
+       <form action="@{ScriptGroup.delete(object._key())}" method="post" role="form">
+         <button class="btn btn-danger" >确认</button>
+       </form>
+     </div>
+   </div>
+ </div>
+</div>
+
+<script>
+submitValidate = function(){
+	flag = true;
+
+      var obj = $("#T_SCRIPT_GROUP_NAME").val();
+      if (obj == '') {
+         toastr.error('脚本分组名称不能为空！');
+        flag = false;
+      }
+      var url2 = "@{ScriptGroup.getScriptGroup()}";
+     	$.ajax({
+          type : "post",
+          url : url2,
+          async : false,
+          success : function(data){
+            var myData = eval('(' + data + ')');
+                for (var i = 0; i < myData.length; i++) {
+                	if ($("#T_SCRIPT_GROUP_NAME").val() != "${object.T_SCRIPT_GROUP_NAME}") {
+                		if ( $("#T_SCRIPT_GROUP_NAME").val()==myData[i].T_SCRIPT_GROUP_NAME) {
+                    toastr.error('脚本分组名称已存在，请更换名称!');
+                    flag = false;
+                  }
+                	}
+                }
+          }
+          });
+     	return flag;
+}
+
+
+onlyName = function(){
+  var url2 = "@{ScriptGroup.getScriptGroup()}";
+  $.post(url2, function(data) {
+                var myData = eval('(' + data + ')');
+                for (var i = 0; i < myData.length; i++) {
+                	if ($("#T_SCRIPT_GROUP_NAME").val() != "${object.T_SCRIPT_GROUP_NAME}") {
+                		if ( $("#T_SCRIPT_GROUP_NAME").val()==myData[i].T_SCRIPT_GROUP_NAME) {
+                    toastr.error('脚本分组名称已存在，请更换名称!');
+                  }
+                	}
+                }
+            });
+}
+</script>

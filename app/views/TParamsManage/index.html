@@ -1,0 +1,175 @@
+#{extends 'main.html' /} 
+
+<style type="text/css"> 
+table {width:100%;} 
+</style> 
+<div class="row wrapper border-bottom white-bg page-heading">
+	    <div class="col-lg-10">
+	        <h2 style="font-size: 20px;">系统参数</h2>
+	        <ol class="breadcrumb">
+	            <li><a href="@{Application.index()}">首页</a></li>
+	            <li><a>系统管理</a></li>
+	            <li class="active"><strong>系统参数</strong></li>
+	        </ol>
+	    </div>
+	</div>
+
+	<div class="col-sm-12">
+		<ul class="nav nav-tabs nav-justified" style="width:100%;" >
+			#{list items:tMuneList,as: 'map'}
+			#{/list}
+		</ul>
+	</div>
+<div class="row" >
+<div class="col-sm-12">
+	<div class="panel">
+		<div class="panel-heading">
+		<table>
+			<tr>
+			<td class="panel-title">参数列表</td>
+			
+			</tr>
+			</table>
+		</div>
+		<div class="panel-body">
+			<table class="table table-bordered">
+				<tbody>
+					<tr>
+						<td width="10%">参数键：</td>
+						<td width="40%">
+							<input type="text" name="paramName" id="paramName" class="form-control"  />
+						</td>
+						<td width="10%">是否可用：</td>
+						<td width="40%">
+							<select class="form-control" id="paramEnable" name="paramEnable">
+								<option value="1">可用</option>
+								<option value="0">不可用</option>
+							</select>
+						</td>
+						<td>
+							<button class="btn btn-primary" id="queryInfo" onclick="queryProcess()">查询</button>
+						</td>
+						<td class="panel-heading-controls" style="text-align:center">
+							<button class="btn btn-primary" data-toggle="modal" data-target="#paramsModal">&{'Insert'}</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<div class="panel-heading">
+			<table>
+			<td class="panel-heading-controls" style="padding-right:50px; text-align:right">
+			
+			</td>
+			</table>
+		</div>
+		
+			<div class="table-info">
+			<iframe id="paramList" src="@{list()}" style="width:100%;border:0px;height:800px;"></iframe>
+			</div>
+		
+		</div>
+	</div>
+</div>
+</div>
+
+<div id="paramsModal" class="modal fade modal-blur" tabindex="-1"
+	role="dialog" style="display: none;">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="table">
+				<div class="table-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-hidden="true">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					</button>
+					<div class="table-caption" style="padding:10px">新增系统参数</div>
+				</div>
+				<table class="table table-condensed table-bordered">
+					<tbody>
+						<tr>
+							<td width="10%">参数键:</td>
+							<td width="40%">
+								<input type="text" class="form-control" id="T_DRM_PARAMS_NAME" name="T_DRM_PARAMS_NAME">
+								<label id="T_DRM_PARAMS_NAMEInput" style="display:none;"><font color="red">*必须输入</font></label>
+							</td>
+						</tr>
+						<tr>
+							<td width="10%">参数值：</td>
+							<td width="40%">
+								<input type="text" class="form-control" id="T_DRM_PARAMS_VALUE" name="tDrmParams.T_DRM_PARAMS_VALUE">
+								<label id="T_DRM_PARAMS_VALUEInput" style="display:none;"><font color="red">*必须输入</font></label>
+							</td>
+						</tr>
+						<tr>
+							<td width="10%">参数描述：</td>
+							<td width="40%">
+								<input type="text" class="form-control" id="T_DRM_PARAMS_DESC" name="tDrmParams.T_DRM_PARAMS_DESC">
+							</td>
+						</tr>
+						<tr>
+							<td width="10%">是否可用：</td>
+							<td width="40%">
+								<select class="form-control" id="T_DRM_PARAMS_ENABLE" name="tDrmParams.T_DRM_PARAMS_ENABLE">
+									<option value="1">可用</option>
+									<option value="0">不可用</option>
+								</select>
+							</td>
+						</tr>
+						
+					</tbody>
+				</table>
+				<div class="table-footer text-right" style="text-align: right;padding-right:20px">
+					<button  class="btn btn-primary" id="_submit">确定</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	function queryProcess()
+	{
+		var paramName = $("#paramName").val();
+		var paramEnable = $("#paramEnable").val();
+		document.getElementById('paramList').src="@{list()}?paramName="+paramName+"&paramEnable="+paramEnable;
+	}
+
+	submitValidate = function()
+	{
+		$("#T_DRM_PARAMS_NAMEInput").hide();
+		$("#T_PROCESS_DESCInput").hide();
+		var obj = $("#T_DRM_PARAMS_NAME").val();
+		if(obj == '')
+		{
+			$("#T_DRM_PARAMS_NAMEInput").show();
+			return false;
+		}
+		obj = $("#T_DRM_PARAMS_VALUE").val();
+		if(obj == '')
+		{
+			$("#T_DRM_PARAMS_VALUEInput").show();
+			return false;
+		}
+		return true;
+	}
+	
+	$(function(){ //alert('Jquery');
+		$("#_submit").bind('click', function(){//alert('a');
+			if(submitValidate()){
+				//$("#_submit").attr('disabled', true);
+				var url="/TParamsManage/save?T_DRM_PARAMS_NAME="+$("#T_DRM_PARAMS_NAME").val()+"&T_DRM_PARAMS_DESC="+$("#T_DRM_PARAMS_DESC").prop("value")+ 
+						"&T_DRM_PARAMS_VALUE="+$("#T_DRM_PARAMS_VALUE").prop("value")+
+						"&T_DRM_PARAMS_ENABLE="+$("#T_DRM_PARAMS_ENABLE").prop("value");
+			
+				$.post(url, function(data){ 
+					$("#paramsModal").modal('hide');
+					queryProcess();
+					$.growl.notice({
+						message : "系统参数添加成功!"
+					});
+				});
+			} 
+		});
+	});  
+
+</script>

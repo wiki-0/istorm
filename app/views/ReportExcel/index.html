@@ -1,0 +1,371 @@
+#{extends 'main.html' /}
+<style>
+iframe {
+	width: 100%;
+	border: 20px;
+	height: 320px;
+}
+</style>
+<div class="row wrapper border-bottom white-bg page-heading">
+	<div class="col-lg-10">
+		<h2 style="font-size: 20px;"></h2>
+		<ol class="breadcrumb">
+			<li><a href="@{Application.index()}">首页</a></li>
+			<li><a>报告管理</a></li>
+			<li class="active"><strong>报表展示</strong></li>
+		</ol>
+	</div>
+	<div class="col-lg-2"></div>
+</div>
+<div class="row">
+	<div class="col-sm-12">
+		<div class="ibox">
+			<div class="ibox-title">
+				<h5>查询条件</h5>
+				<div class="ibox-tools"></div>
+			</div>
+			<div class="ibox-content">
+				<div class="row">
+                    <table class="table table-bordered">
+					<tbody>
+						<tr>
+							<td width="10%" align="right"><span class="sel-tit">设备分层：</span></td>
+							<td width="25%">
+								<select  style="width: 100%; height:34px; font-family: 'Microsoft YaHei'; font-size: 16px;" id="jobTypeSelect" name="province" onChange="getType()">
+									<option>请选择设备</option>
+								</select> 
+							</td>
+							<td width="10%" align="right"><span class="sel-tit">任务名称：</span></td>
+							<td width="25%">
+								<select  style="width: 100%; height:34px; font-family: 'Microsoft YaHei'; font-size: 16px; name="city" id="device">
+									<option>全部</option>
+								</select>
+							</td>
+							<td width="10%" align="center"><button id="queryBtn" class="btn btn-primary" style="width:60px;position: relative;left: -10px">查&nbsp;&nbsp;询</button></td>
+						</tr>
+						<tr id="timeInfo">
+							<td width="10%" align="right"><span class="sel-tit">起始时间：</span></td>
+							<td width="25%">
+								<div class="input-prepend input-group">
+									<input type="text" name="start" id="start" class="form-control"
+										readonly="readonly" value="${startTime}" /> <span
+										class="add-on input-group-addon"> <i
+										class="glyphicon glyphicon-calendar fa fa-calendar"
+										style="cursor: pointer;"
+										onclick="WdatePicker({el:$dp.$('start'),dateFmt:'yyyy-MM-dd',skin:'whyGreen'})"></i>
+									</span>
+								</div>
+							</td>
+							<td width="10%" align="right"><span class="sel-tit">结束时间：</span></td>
+							<td width="25%">
+								<div class="input-prepend input-group">
+									<input type="text" name="end" id="end" class="form-control"
+										readonly="readonly" value="${endTime}" /> <span
+										class="add-on input-group-addon"> <i
+										class="glyphicon glyphicon-calendar fa fa-calendar"
+										style="cursor: pointer;"
+										onclick="WdatePicker({el:$dp.$('end'),dateFmt:'yyyy-MM-dd',skin:'whyGreen'})"></i>
+									</span>
+								</div>
+							</td>
+							<td width="10%" align="center">
+								<button id="toExcel" class="btn btn-primary"
+									onclick="getExcelData();">生成报表</button>
+								<a id="aId" style="display: none;"></a>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+                </div>
+                <!-- <div class="row">
+                	<div class="col-sm-8"></div>
+                	<div class="col-sm-2">
+                        <div class="form-group">
+                        	<button id="queryBtn" class="btn btn-primary" style="width:80px">查&nbsp&nbsp&nbsp&nbsp询</button>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="form-group">
+                            <button id="toExcel" class="btn btn-primary"
+									onclick="getExcelData();">生成报表</button>
+								<a id="aId" style="display: none;"></a>
+                        </div>
+                    </div>
+                </div> -->
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-sm-12">
+		<div class="ibox">
+			<div class="ibox-title">
+				<h5>报表展示</h5>
+				<div class="ibox-tools">
+					<a class="collapse-link"> <i class="fa fa-chevron-up"></i></a> <a
+						class="collapse-link"> </a>
+				</div>
+			</div>
+			<div class="ibox-content">
+				<div id="mashup" style="height: 400px; width: 900px"></div>
+				<br>
+				<div class="ibox-content">
+					<div id="crudListTable">
+					#{crud.table fields:['设备分层','任务名称','设备名称','脚本名称','告警等级','创建时间'] } #{/crud.table}</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+
+var job = "";
+$(document).ready(function(){
+	var province= ${equipmentstr};
+	var sltJobType=document.getElementById("jobTypeSelect");
+	for(var i=0;i<province.length;i++){
+		sltJobType[i+1]=new Option(province[i]);
+	}
+	job=${listjob};
+});
+
+	function getType(){
+         	 
+		//获得设备分层下拉框的对象
+        var sltJobType=document.getElementById("jobTypeSelect");
+        //获得设备下拉框的对象
+        var sltJob=document.getElementById("device");
+        //得到对应省份的城市数组
+        var jobTypeAndJob=job[sltJobType.selectedIndex - 1];
+      
+        //清空设备下拉框，仅留提示选项
+        sltJob.length=1;
+      
+        //将设备数组中的值填充到设备下拉框中
+        for(var i=0;i<jobTypeAndJob.length;i++){
+        	sltJob[i+1]=new Option(jobTypeAndJob[i],jobTypeAndJob[i]);
+        }
+    }
+	onload = getType;
+	
+	$('#queryBtn').click(function() {
+		if (!queryDate()) {
+			$('#queryBtn').attr("disabled", false);
+			return false;
+		}
+		queryReportData();
+		getResultList();
+	});
+	
+	function queryReportData() {
+		var XData = new Array();
+		var reportSeries = new Array();
+		var startTime = '';
+		var endTime = '';
+		var jobType = $("#jobTypeSelect").val();
+		var job = $("#device").val();
+		var startTime = $("#start").val();
+		var endTime = $("#end").val();
+		$.ajaxSettings.async = false;
+		$.ajax({
+			type : "POST",//请求方式  
+			url : "/ReportExcel/chartdata",//地址，就是action请求路径  
+			dataType : "json",//数据类型text xml json  script  jsonp
+			data : {
+				jobType : jobType,
+				job : job,
+				startTime : startTime,
+				endTime : endTime
+			},
+			success : function(data) {//返回的参数就是 action里面所有的有get和set方法的参数
+				$.each(data, function(index, valu) {
+					if (index == "firstDayData") {
+						XData = eval(valu);
+					}
+					if (index == "firstSumData") {
+						reportSeries.push({
+							name:'严重告警',
+				            type:'bar',
+							data : eval(valu)
+						});
+					}
+					if (index == "secondeSumData") {
+						reportSeries.push({
+							name:'主要告警',
+				            type:'bar',
+							data : eval(valu)
+						});
+					}
+					if (index == "thirdSumData") {
+						reportSeries.push({
+							name:'次要告警',
+				            type:'bar',
+							data : eval(valu)
+						});
+					}
+					if (index == "fourthSumData") {
+						reportSeries.push({
+							name:'提示告警',
+				            type:'bar',
+							data : eval(valu)
+						});
+					}
+				})
+			},
+			error:function(){
+				alert("传入值有误");
+			}
+		});
+		initChart(XData, reportSeries);
+	}
+	
+	var resultDataTable;
+	function getResultList(){
+		var startTime = $("#start").val();
+		var endTime = $("#end").val();
+		var jobType = $("#jobTypeSelect").val();
+		var job = $("#device").val();
+		var $searchResult = $('#crudListTable table');
+        if (resultDataTable) {
+            resultDataTable.fnClearTable(false);
+            $searchResult.dataTable().fnDestroy();
+        }  else {
+            $searchResult.show();
+        }
+        resultDataTable = $('#crudListTable table').dataTable({
+            "bProcessing": true,
+            "bServerSide": false,
+            "iDisplayLength": 20,
+            "bLengthChange": false,
+            "sPaginationType":"full_numbers",
+            "oLanguage": {
+                "sZeroRecords": "没有任何数据",
+                "sSearch":"查询 ",
+                "oPaginate": {
+                    "sFirst":"首页",
+                    "sPrevious":"上一页",
+                    "sNext":"下一页",
+                    "sLast":"最后一页"
+                }
+            },
+            "sAjaxSource": '/ReportExcel/getResultList?startTime=' + startTime + '&endTime=' + endTime + '&jobType=' + jobType + '&job=' + job,
+            "fnServerParams": function ( aoData ) {
+                $(".dataTables_info").hide();
+                aoData.push( { "name": "Fields", "value": "T_NODE_TYPE_NAME,T_JOB_NAME,T_NODE_NAME,T_SCRIPT_NAME,T_RESULT_ALARM_LEVEL,T_RESULT_TIME"} );
+            }
+        });
+	}
+	
+	//生成Excel表格点击事件
+	function getExcelData() {
+		var startTime = $("#start").val();
+		var endTime = $("#end").val();
+		var jobType = $("#jobTypeSelect").val();
+		var job = $("#device").val();
+		
+		var href = "/ReportExcel/toExcel?startTime=" + startTime + "&endTime=" + endTime + "&jobType=" + jobType + "&job=" + job;
+
+		document.getElementById("aId").href = href;
+		document.getElementById("aId").click();
+	}
+	
+	
+	queryDate = function() {
+		var chooseTime = $("#choose").val();
+		var startTime = $("#start").val();
+		var endTime = $("#end").val();
+		if (!compareTime(startTime, endTime)) {
+			//$("#uidemo-modals-alerts-danger-compareTime").modal('show');
+			 toastr.options = {
+					  "closeButton": true,
+					  "debug": false,
+					  "progressBar": true,
+					  "preventDuplicates": false,
+					  "positionClass": "toast-top-right",
+					  "onclick": null,
+					  "showDuration": "400",
+					  "hideDuration": "1000",
+					  "timeOut": "7000",
+					  "extendedTimeOut": "1000",
+					  "showEasing": "swing",
+					  "hideEasing": "linear",
+					  "showMethod": "fadeIn",
+					  "hideMethod": "fadeOut"
+					}
+			toastr.error('开始时间大于或等于结束时间,请检查!','警告：')
+			return false;
+		}
+		return true;
+	}
+
+	compareTime = function(a, b) {
+		var arr = a.split("-");
+		var starttime = new Date(arr[0], arr[1], arr[2]);
+		var starttimes = starttime.getTime();
+
+		var arrs = b.split("-");
+		var lktime = new Date(arrs[0], arrs[1], arrs[2]);
+		var lktimes = lktime.getTime();
+		if (starttimes >= lktimes) {
+			return false;
+		} else
+			return true;
+	}
+	
+	
+	
+function initChart(XData, reportSeries){	
+var mychart = new Array();
+var type="bar";
+	require.config({
+    	paths: {
+        	echarts: '@{'/public/assets/echarts'}'
+    	}
+	});
+	require(
+    	[
+        	'echarts',
+        	'echarts/chart/line',   // 按需加载所需图表，如需动态类型切换功能，别忘了同时加载相应图表
+        	'echarts/chart/bar',
+    	],
+    	function (ec){
+	option2 = {
+	    tooltip : {
+	        trigger: 'axis'
+	    },
+	    legend: {
+	        data:['严重告警','主要告警','次要告警','提示告警']
+	    },
+	    toolbox: {
+	        show : true,
+	        feature : {
+	        	mark : {show: false},
+	            dataView : {show: false, readOnly: false},
+	            magicType : {show: true, type: ['line', 'bar']},
+	            restore : {show: true},
+	            saveAsImage : {show: true}
+	        }
+	    },
+	    calculable : true,
+	    xAxis : [
+	        {
+	            type : 'category',
+	            data : XData
+	        }
+	    ],
+	    yAxis : [
+	        {
+	            type : 'value'
+	        }
+	    ],
+	    series : reportSeries
+	};
+	mychart = ec.init(document.getElementById('mashup'));
+	mychart.setOption(option2);
+    	}
+	);
+}	
+	
+</script>

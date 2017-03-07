@@ -1,0 +1,15 @@
+#{extends 'example.html' /}
+<div>
+	<div id="crudListTable">
+		#{crud.table fields:['T_DRM_PARAMS_NAME','T_DRM_PARAMS_DESC','T_DRM_PARAMS_VALUE','T_DRM_PARAMS_ENABLE'] }
+			#{crud.custom 'T_DRM_PARAMS_ENABLE'}
+				%{if(object.T_DRM_PARAMS_ENABLE=='1'){}%
+					可用
+				%{}else if(object.T_DRM_PARAMS_ENABLE=='0'){}%
+					不可用
+				%{}}%
+			#{/crud.custom}
+		#{/crud.table}
+	</div>
+	<div id="crudListPagination">#{crud.pagination /}</div>
+</div>

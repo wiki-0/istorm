@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<!--[if IE 8]>         <html class="ie8"> <![endif]-->
+<!--[if IE 9]>         <html class="ie9 gt-ie8"> <![endif]-->
+<!--[if gt IE 9]><!--> <html class="gt-ie8 gt-ie9 not-ie"> <!--<![endif]-->
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<title>自动化巡检平台</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+	<!-- Open Sans font from Google CDN -->
+	
+	<!-- Pixel Admin's stylesheets -->
+	<link href="@{'/public/assets/stylesheets/bootstrap.min.css'}" rel="stylesheet" type="text/css">
+	<link href="@{'/public/assets/stylesheets/pixel-admin.min.css'}" rel="stylesheet" type="text/css">
+	<link href="@{'/public/assets/stylesheets/pages.min.css'}" rel="stylesheet" type="text/css">
+	<link href="@{'/public/assets/stylesheets/rtl.min.css'}" rel="stylesheet" type="text/css">
+	<link href="@{'/public/assets/stylesheets/themes.min.css'}" rel="stylesheet" type="text/css">
+	<script type="text/javascript" charset="utf-8"
+		src="@{'/public/assets/javascripts/jquery-2.0.3.min.js'}"></script>
+	<!--[if lt IE 9]>
+		<script src="assets/javascripts/ie.min.js"></script>
+	<![endif]-->
+
+
+<!-- $DEMO =========================================================================================
+
+	Remove this section on production
+-->
+	<style>
+		.page-signin .signin-container {
+			display: table;
+		    margin: 200px auto;
+		    width: 650px;
+		    table-layout: fixed;
+		}
+		.page-signin .signin-info {
+		    display: table-cell;
+		    padding: 30px;
+		    text-align: left;
+		    vertical-align: top;
+		    width: 40%;
+		  }
+	</style>
+<!-- / $DEMO -->
+
+</head>
+
+
+<!-- 1. $BODY ======================================================================================
+	
+	Body
+
+	Classes:
+	* 'theme-{THEME NAME}'
+	* 'right-to-left'     - Sets text direction to right-to-left
+-->
+<body class="theme-default page-signin" style="overflow-y: hidden">
+
+<script>
+	var init = [];
+
+</script>
+
+	<!-- Page background -->
+	<div id="page-signin-bg">
+		<!-- Background overlay -->
+		<div class="overlay"></div>
+		<!-- Replace this with your bg image -->
+		<img src="@{'/public/images/bg02.png'}" alt="">
+	</div>
+	<!-- / Page background -->
+
+	<!-- Container -->
+	<div class="signin-container">
+		<!-- Left side -->
+		<div class="signin-info">
+			<img src="@{'/public/images/logo.jpg'}" alt="" style="height: 200px;width: 200px">&nbsp;
+			<div class="slogan" >
+				<font size="5">&nbsp&nbsp&nbsp自动化巡检平台</font>
+			</div>
+		</div>
+		<!-- / Left side -->
+
+		<!-- Right side -->
+		<div class="signin-form">
+			 #{doLayout /} 
+			<!-- Form -->
+			
+			<!-- / Form -->
+	</div>
+</div>
+<!-- Pixel Admin's javascripts -->
+<script src="@{'/public/assets/javascripts/bootstrap.min.js'}"></script>
+<script type="text/javascript">
+	// Resize BG
+	init.push(function () {
+		var $ph  = $('#page-signin-bg'),
+		    $img = $ph.find('> img');
+
+		$(window).on('resize', function () {
+			$img.attr('style', '');
+			if ($img.height() < $ph.height()) {
+				$img.css({
+					height: '100%',
+					width: 'auto'
+				});
+			}
+		});
+	});
+</script>
+
+</body>
+</html>

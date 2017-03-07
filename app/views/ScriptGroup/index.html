@@ -1,0 +1,139 @@
+#{extends 'main.html' /} #{set title:'IStorm Patrol' /}
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2 style="font-size: 20px;"></h2>
+        <ol class="breadcrumb">
+           <li><a href="@{Application.index()}">首页</a></li>
+           <li><a>脚本对象管理</a></li>
+           <li class="active"><strong>脚本分组</strong></li>
+        </ol>
+    </div>
+    <div class="col-lg-2"></div>
+</div>
+
+<div class="row">
+	<div class="col-sm-12">
+		<div class="ibox">
+			<div class="ibox-title">
+				<h5>脚本分组</h5>
+				<div class="ibox-tools">
+					<a class="collapse-link">
+						<i class="fa fa-chevron-up"></i>
+					</a>
+				</div>
+			</div>
+			<div class="ibox-content">
+				<table class="table table-bordered">
+					<tbody>
+						<tr>
+							<td width="10%" align="right"><span class="sel-tit">脚本分组名称：</span></td>
+							<td width="30%">
+								<input type="text" name="T_SCRIPT_GROUP_NAME" id="T_SCRIPT_GROUP_NAMESearch" class="form-control" maxlength="20">
+							</td>
+							<td align="left">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+								<input type="button" name="name" value="查询" class="btn btn-primary" onclick="queryNodeInfo()">
+								<input type="button" name="name" value="新增" class="btn btn-primary" onclick="newScriptGroup()">
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<iframe id="scriptGroupList" src="@{ScriptGroup.list()}" style="width: 100%; height: 800px; border: 0px;"></iframe>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="modal-form" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addJobLabel" style="display: none;">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">新增脚本分组</h4>
+            </div>
+            <div class="modal-body">
+                <form id="createScriptGroup" class="form-horizontal" action="@{ScriptGroup.saveScriptGroup()}"  method="post" role="form">
+                    <div class="row">
+                        <div class="col-sm-12">
+                        <table class="table table-bordered">
+                     	<tbody>
+							<tr>
+								<td width="10%">脚本分组名称：</td>
+								<td width="90%">
+									<input type="text" class="form-control" id="T_SCRIPT_GROUP_NAME" name="tScriptGroup.T_SCRIPT_GROUP_NAME" onblur="onlyName()" maxlength="20">
+								</td>
+							</tr>
+							<tr>
+								<td width="10%">脚本分组描述：</td>
+								<td>
+									<textarea class="form-control" rows="3" id="T_SCRIPT_GROUP_DESC" name="tScriptGroup.T_SCRIPT_GROUP_DESC" maxlength="200"></textarea>
+								</td>
+							</tr>
+							<tr>
+								<td colspan="4" class=" text-center">
+									<input type="submit" class="btn btn-primary" onclick="return submitValidate()" value="确定">
+									<button class="btn btn-primary" onclick="return clearValue()">清空</button>
+								</td>
+							</tr>
+						</tbody>
+                    	</table>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+clearValue = function(){
+    $("#createScriptGroup")[0].reset();
+
+    return false;
+}
+
+onlyName = function(){
+  var url2 = "@{ScriptGroup.getScriptGroup()}";
+  $.post(url2, function(data) {
+                var myData = eval('(' + data + ')');
+                for (var i = 0; i < myData.length; i++) {
+                  if ( $("#T_SCRIPT_GROUP_NAME").val()==myData[i].T_SCRIPT_GROUP_NAME) {
+                    toastr.error('脚本分组名称已存在，请更换名称!');
+                  }
+                }
+            });
+}
+	 newScriptGroup = function(){
+    	document.getElementById("createScriptGroup").reset();
+        $('#modal-form').modal('show');
+    }
+
+	function queryNodeInfo() {
+		var T_SCRIPT_GROUP_NAME = $("#T_SCRIPT_GROUP_NAMESearch").val();
+		document.getElementById('scriptGroupList').src = "@{ScriptGroup.list()}?T_SCRIPT_GROUP_NAME=" + T_SCRIPT_GROUP_NAME;
+	}
+	submitValidate = function() {
+		var flag = true;
+		var obj = $("#T_SCRIPT_GROUP_NAME").val();
+		if (obj == '') {
+			toastr.error('脚本分组名称不能为空！');
+			return false;
+		}
+		var url2 = "@{ScriptGroup.getScriptGroup()}";
+		$.ajax({
+          type : "post",
+          url : url2,
+          async : false,
+          success : function(data){
+            var myData = eval('(' + data + ')');
+                for (var i = 0; i < myData.length; i++) {
+                	if ( $("#T_SCRIPT_GROUP_NAME").val()==myData[i].T_SCRIPT_GROUP_NAME) {
+                		toastr.error('脚本分组名称已存在，请更换名称!');
+                		flag = false;
+                	}
+                }
+          }
+          });
+		return flag;
+	}
+</script>

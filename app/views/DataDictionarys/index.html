@@ -1,0 +1,511 @@
+#{extends 'main.html' /}
+<style type="text/css">
+	div#rMenu {position:absolute; visibility:hidden; top:0px;text-align: left;padding: 2px;}
+	div#rMenu ul li{
+		margin: 0;
+		padding: 0 5px;
+		cursor: pointer;
+		list-style: none outside none;
+		background-color: #F8DD59;
+	}
+	table.table-bordered.dataTable tbody tr.selected {
+		background-color:#FAFAD2
+	}
+	table td,table th{
+		text-align: center;
+	}
+</style>
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2 style="font-size: 20px;"></h2>
+        <ol class="breadcrumb">
+             <li class="active">首页</li>
+             <li class="active">系统管理</li>
+              <li class="active"><strong>数据字典</strong></li>
+        </ol>
+    </div>
+</div>
+<br>
+<div class="row">
+	<div class="col-lg-6">
+		<div class="ibox float-e-margins">
+			<div class="ibox-title">
+				<h5>数据字典列表</h5>
+				<div class="ibox-tools">
+					<button class="btn btn-primary" data-toggle="modal" data-target="#addDD" id="_addDD">新增</button>
+				</div>
+			</div>
+			<div class="ibox-content">
+				<div class="text-left">
+                    
+                </div>
+				<div id="ddNameListTable" >
+					#{crud.tsmtable fields:['数据字典名称','展示类型','数据字典值','删除'] }
+					#{/crud.tsmtable}
+           		 </div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-lg-6">
+		<div class="ibox float-e-margins">
+			<div class="ibox-title">
+				<h5>数据字典值&nbsp;&nbsp;&nbsp;</h5>
+				<a class="dropdown-toggle" data-toggle="modal" data-target="#addVal">
+					<i class="fa fa-plus"></i>
+				</a>
+				<div class="ibox-tools" style="float:right">
+					<a class="collapse-link"> <i class="fa fa-chevron-up"></i></a>
+				</div>
+			</div>
+			<div class="ibox-content">
+				<ul id="treeDemo" class="ztree">
+
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<div id="addDD" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addDDLabel" style="display: none;">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	       		 <h4 id="ddTitle" class="modal-title">新增数据字典</h4>
+			</div>
+			<div class="modal-body">
+				<form id="new_form" enctype="multipart/form-data" action="@{DataDictionarys.saveDD()}" method="post">
+						<table class="table table-condensed table-bordered">
+							<tbody>
+								<tr>
+									<td width="20%"><label>数据字典名称：</label></td>
+									<td><input type="text" class="form-control" id="tDD.T_DD_NAME" name="tDD.T_DD_NAME" placeholder="必须输入" maxlength=20></input>
+									</td>
+								</tr>
+								<tr>
+									<td width="20%"><label>展示类型：</label></td>
+									<td>
+										<select class="form-control" id="select_type" name="select_type">
+											<option value="">请选择</option>
+											<option value="1">下拉框</option>
+											<option value="2">单选框</option>
+											<option value="3">多选框</option>
+										</select>
+									</td>
+								</tr>
+								<tr>
+                                    <td colspan="4" align="center">
+                                        <span><button class="btn btn-primary" onclick="return validateDD()">确定</button></span>
+                                        <span><button class="btn btn-primary" type="reset">清空</button></span>
+                                        <input  type="hidden" id="ddId" name="ddId">
+                                    </td>
+                                </tr>
+							</tbody>
+						</table>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+*{/*************************************************************************************************************/}*
+<div id="addVal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addValLabel" style="display: none;">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	       		 <h4 class="modal-title">新增数据字典值</h4>
+			</div>
+			<div class="modal-body">
+				<table id="addValTable" class="table table-condensed table-bordered">
+					<tbody>
+						<tr>
+							<td width="20%"><label>数据字典值：</label></td>
+							<td><input type="text" class="form-control" id="tDD_val" name="tDD_val" placeholder="必须输入" maxlength=20></input>
+							</td>
+						</tr>
+						<tr id="valUser">
+							<td width="20%"><label>负责人：</label></td>
+							<td>
+								<select class="form-control" name="tDD_val_user" id="tDD_val_user">
+								</select>
+							</td>
+						</tr>
+						<tr>
+                            <td colspan="4" align="center">
+                                <span><button class="btn btn-primary" onclick="return validateVal()">确定</button></span>
+                                <span><button class="btn btn-primary" type="button" onclick="clearVal()">清空</button></span>
+                            </td>
+                        </tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+*{/*************************************************************************************************************/}*
+<div id="user" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="userValLabel" style="display: none;">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	       		 <h4 class="modal-title"></h4>
+			</div>
+			<div class="modal-body">
+				<table class="table table-condensed table-bordered">
+					<tbody>
+						<tr>
+							<td width="20%"><label>负责人：</label></td>
+							<td>
+								<select class="form-control" name="tDD_user" id="tDD_user">
+								</select>
+							</td>
+							<!-- <input type="hidden" id="parent_id" name="parent_id"></input> -->
+						</tr>
+						<tr>
+                            <td colspan="4" align="center">
+                                <span><button class="btn btn-primary" onclick="return validateUser()">确定</button></span>
+                                <span><button class="btn btn-primary" type="button" onclick="clearVal()">清空</button></span>
+                            </td>
+                        </tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="modal-sizes-1" class="modal fade" tabindex="-1" role="dialog" style="display: none;">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </button>
+                <h4 class="modal-title"><p style="text-align:center;">是否删除:</p></h4>
+            </div>
+            <div class="modal-body">
+            	<p style="text-align:center;">请确认是否删除?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="return _deleteDD()">确认</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="rMenu">
+	<ul>
+		<li id="edit_user" onclick="editUser()">编辑负责人</li>
+	</ul>
+</div>
+
+<script type="text/javascript">
+	var g_id;
+	var zTree,rMenu;
+	var treeNodeId;
+	var setting = {
+		data : {
+		 simpleData : {
+             enable : true,
+             idKey : "id", // id编号命名 默认
+             pIdKey : "pId", // 父id编号命名 默认
+             rootPId : 0 // 用于修正根节点父节点数据，即 pIdKey 指定的属性值
+          }
+		},
+		view: {
+			dblClickExpand: false
+		},
+		edit : {
+			enable: true,
+			showRenameBtn : false,
+			showRemoveBtn : true,
+			removeTitle: "删除"
+		},
+		callback : {
+			onRightClick: OnRightClick,
+			beforeRemove : beforeRemove,
+			onRemove: onRemove
+		}
+	};
+	function beforeRemove(treeId, treeNode){
+		return confirm("确认删除吗？");
+	}
+	function onRemove(event, treeId, treeNode){
+		$.ajax({
+		 	url:"@{DataDictionarys.deleteVal()}",
+            data:{id:treeNode.id},
+            success: function(data){
+            	showValues(g_id);
+            }
+		 });
+	}
+	function OnRightClick(event, treeId, treeNode) {
+		treeNodeId = treeNode.id;
+		zTree.selectNode(treeNode);
+		if(g_id=="1"){
+			showRMenu(event.clientX, event.clientY);
+		}
+	}
+
+	function showRMenu(x, y) {
+		$("#rMenu ul").show();
+
+		rMenu.css({"top":(y-50)+"px", "left":(x-200)+"px", "visibility":"visible"});
+
+		$("body").bind("mousedown", onBodyMouseDown);
+	}
+	/*function hideRMenu() {
+		if (rMenu) rMenu.css({"visibility": "hidden"});
+		$("body").unbind("mousedown", onBodyMouseDown);
+	}*/
+	function onBodyMouseDown(event){
+		if (!(event.target.id == "rMenu" || $(event.target).parents("#rMenu").length>0)) {//
+			rMenu.css({"visibility" : "hidden"});
+		}
+	}
+
+
+	var ddNameListTable;
+	function getDDList(){
+
+        var $searchResult = $('#ddNameListTable table');
+        if (ddNameListTable) {
+        	ddNameListTable.fnClearTable(false);
+            $searchResult.dataTable().fnDestroy();
+        }  else {
+            $searchResult.show();
+        }
+        ddNameListTable = $('#ddNameListTable table').dataTable({
+        	"order": [[ 0, "desc" ]],
+            "bProcessing": true,
+            "bServerSide": false,
+            "iDisplayLength": 20,
+            "bLengthChange": false,
+            "sPaginationType":"full_numbers",
+            "oLanguage": {
+                "sZeroRecords": "没有任何数据",
+                "sSearch":"查询",
+                "oPaginate": {
+                    "sFirst":"首页",
+                    "sPrevious":"上一页",
+                    "sNext":"下一页",
+                    "sLast":"最后一页"
+                }
+            },
+            "sAjaxSource": "/DataDictionarys/showDD",
+            "fnServerParams": function ( aoData ) {
+                $(".dataTables_info").hide();
+                aoData.push( { "name": "Fields", "value": "name,type,edit,delete"} );
+            }
+        });
+    }
+
+    
+	$('#addDD').on('show.bs.modal',function(){
+		// document.getElementById('tDD.T_DD_NAME').value="";
+		// document.getElementById('select_type').value = "";
+	});
+	$('#_addDD').on('click',function(){
+		$('#ddTitle').html("新增数据字典");
+		document.getElementById('tDD.T_DD_NAME').value="";
+		document.getElementById('select_type').value = "";
+	})
+
+	function validateDD(){
+		var name = document.getElementById('tDD.T_DD_NAME').value;
+		var select_type = document.getElementById('select_type').value;
+		if((name==null || name=="") && (select_type==null || select_type=="")){
+			toastr.error('数据字典名称不能为空！');
+			toastr.error('请选择展示类型');
+            return false;
+		}
+		if((name==null || name=="")){
+			toastr.error('数据字典名称不能为空！');
+            return false;
+		}
+		if(name.length >= 20){
+			toastr.error('数据字典名称不能超过20个字符！');
+            return false;
+		}
+		
+		if(select_type==null || select_type==""){
+			toastr.error('请选择展示类型');
+            return false;
+		}
+	}
+	function editDD(id){
+		$.ajax({
+		 	url:"@{DataDictionarys.editDD()}",
+            data:{id:id},
+            success: function(data){
+            	var myData=eval(data);
+            	// console.log(myData[0].type);
+            	document.getElementById('ddId').value = myData[0].id;
+            	document.getElementById('tDD.T_DD_NAME').value = myData[0].name;
+            	$('#select_type').val(myData[0].type);
+            	$('#ddTitle').html("编辑数据字典");
+            	$('#addDD').modal('show');
+            }
+		 });
+	}
+	var deleteId;
+	function deleteDD(id){
+		deleteId = id ;
+		$('#modal-sizes-1').modal('show');
+	}
+	function _deleteDD(){
+		$.ajax({
+		 	url:"@{DataDictionarys.deleteDD()}",
+            data:{id:deleteId},
+            success: function(data){
+            	$('#modal-sizes-1').modal('hide');
+             	getDDList();
+             	showValues(deleteId);
+             	g_id = "";
+            }
+		});
+	}
+
+	/**********************************************************************************/
+	function showValues(id){
+		g_id = id;
+		// $('#parent_id').val(id);
+		$.ajax({
+		 	url:"@{DataDictionarys.showValues()}",
+            data:{id:id},
+            success: function(data){
+             	var zNodes=eval('('+data+')');
+             	$.fn.zTree.init($("#treeDemo"), setting,zNodes);
+             	zTree = $.fn.zTree.getZTreeObj("treeDemo");
+            }
+		 });
+	}
+	function clearVal(){
+		document.getElementById("tDD_val").value = "";
+		document.getElementById('tDD_val_user').value = "";
+	}
+
+/***************************************************************************************/
+	function getAllUserJSON() {
+		var url = "/NodeType/getAllUserJSON";
+		$.post(url, function(data) {
+			var myData = eval('(' + data + ')');
+			 $("#tDD_user").empty();
+			var opt = "<option value=''>请选择</option>";
+			for (var i = 0; i < myData.length; i++) {
+				opt += "<option value='"+myData[i].id+"' >" + myData[i].name
+						+ "</option>";
+			}
+			$("#tDD_user").html(opt);
+			$('#tDD_val_user').html(opt);
+		});
+	}
+/****************************************************************************************/
+	$('#addVal').on('show.bs.modal',function(){
+		$('#tDD_val').val("");
+		$('#tDD_val_user').val("");
+		if(g_id!="1"){
+			$('#valUser').hide();
+		}
+		else{
+			$('#valUser').show();
+			getAllUserJSON();
+		}
+
+	});
+	function validateVal(){
+		var val = document.getElementById('tDD_val').value;
+		var user;
+
+		if(g_id=="" || g_id==null){
+			$('#addVal').modal('hide');
+			toastr.error('请先选择一个数字字典名称！');
+			return false;
+		}
+
+		if(g_id=="1"){
+			user= document.getElementById('tDD_val_user').value;
+			if((user==null || user=="") && (val==null || val=="")){
+				toastr.error('数据字典值不能为空！');
+				toastr.error('领导未选择！');
+	            return false;
+			}
+			if(user==null || user==""){
+				toastr.error('领导未选择！');
+	            return false;
+			}
+		}
+		
+
+		if(val==null || val==""){
+			toastr.error('数据字典值不能为空！');
+            return false;
+		}
+		if(val.length > 10){
+			toastr.error('数据字典值不能超过10个字符！');
+            return false;
+		}
+		$.ajax({
+		 	url:"@{DataDictionarys.saveVal()}",
+            data:{
+            	tDD_val: val,
+            	parent_id : g_id,
+            	user: user
+            },
+            success: function(data){
+            	console.log(data);
+            	$('#addVal').modal('hide');
+             	showValues(g_id);
+            }
+		});
+	}
+
+	function editUser(){
+		$('#user').modal('show');
+	}
+
+	$('#user').on('show.bs.modal',function(){
+		getAllUserJSON();
+	});
+
+	function validateUser(){
+		var tDD_user = document.getElementById('tDD_user').value;
+		if(tDD_user==null || tDD_user==""){
+			toastr.error('领导未选择！');
+            return false;
+		}
+		$.ajax({
+		 	url:"@{DataDictionarys.saveUser()}",
+            data:{
+            	userId: tDD_user,
+            	id : treeNodeId
+            },
+            success: function(data){
+            	$('#user').modal('hide');
+             	showValues(g_id);
+            }
+		});
+		showValues(g_id);
+	}
+
+
+    $(document).ready(function() {
+		getDDList();
+		rMenu = $("#rMenu");
+		setTimeout(function(){
+			$('#ddNameListTable tbody tr').eq(0).addClass('selected');
+			var id = ddNameListTable.$('tr.selected').find('input').val();
+			showValues(id);
+		}, 100);
+		
+
+		$('#ddNameListTable tbody').on( 'click', 'tr', function () {
+			ddNameListTable.$('tr.selected').removeClass('selected');
+	        $(this).addClass('selected');
+			g_id = $(this).find('input').val();
+		});
+	});
+</script>

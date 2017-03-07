@@ -1,0 +1,305 @@
+#{extends 'main.html' /}
+<style>
+    iframe {
+        width: 100%;
+        border: 20px;
+        height: 320px;
+    }
+    .table-responsive {
+        overflow-x: hidden
+    }
+</style>
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2 style="font-size: 0px;"></h2>
+        <ol class="breadcrumb">
+            <li><a href="@{Application.index()}">首页</a></li>
+            <li>界面展示</li>
+            <li class="active"><strong>巡检结果查询</strong></li>
+        </ol>
+    </div>
+    <div class="col-lg-2"></div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <div class="ibox">
+            <div class="ibox-title">
+                <h5>巡检结果列表</h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                </div>
+            </div>
+                <div class="ibox-content">
+                    <table class="table table-bordered">
+                        <tbody>
+                        <tr>
+                            <td width="8%" align="right"><span class="sel-tit">任务名称：</span></td>
+                            <td width="17%"><input type="text" name="jobName" id="jobName" class="form-control"></td>
+
+                            <td width="8%" align="right"><span class="sel-tit">设备分层：</span></td>
+                            <td width="17%"><input type="text" name="nodeLayered" id="nodeLayered" class="form-control">
+                            </td>
+
+                            <td width="8%" align="right"><span class="sel-tit">设备名称：</span></td>
+                            <td width="17%"><input type="text" name="nName" id="nName" class="form-control"></td>
+
+                            <td width="8%" align="right"><span class="sel-tit">脚本名称：</span></td>
+                            <td width="17%"><input type="text" name="scriptName" id="scriptName" class="form-control"></td>
+                            <td colspan="3">
+                            </td>
+                        </tr>
+                        <tr>
+
+                            <td width="8%" align="right"><span class="sel-tit">报警等级：</span></td>
+                            <td width="17%"><select class="form-control" name="resultType" id="resultType" onchange="getJobList()">
+                                <option value="">全部</option>
+                                <option value="1">严重</option>
+                                <option value="2">主要</option>
+                                <option value="3">次要</option>
+                                <option value="4">提示</option>
+                            </select></td>
+                            <td width="8%" align="right"><span class="sel-tit">IP地址：</span></td>
+                            <td width="17%"><input type="text" name="ip" id="ip" class="form-control"/></td>
+                            <td width="8%" align="right"><span class="sel-tit">巡检时间：</span></td>
+                            <td width="17%">
+                                <div class="input-prepend input-group">
+                                    <input type="text" name="queryTime" id="queryTime" class="form-control" readonly="readonly" value="${queryTime}" />
+								<span class="add-on input-group-addon"> <i class="glyphicon glyphicon-calendar fa fa-calendar" style="cursor: pointer;"
+                                                                           onclick="WdatePicker({el:$dp.$('queryTime'),dateFmt:'yyyy-MM-dd',skin:'whyGreen'})"></i>
+								</span>
+                                </div>
+                            </td>
+                            <td width="8%" align="right"><span class="sel-tit">分派阅读人：</span></td>
+                            <td width="17%"><input type="text" name="userName" id="userName" class="form-control"/></td>
+                            <td colspan="3">
+                                <div class="text-center">
+                                    <button class="btn btn-primary" id="queryNodeInfo" onclick="getJobList()">查询</button>
+                                    *{<button class="btn btn-primary" onclick="clearnTable()">清空</button>}*
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div id="crudListTable">
+                    #{crud.tsmtable fields:['告警等级','任务名称','设备分层','设备名称','IP地址','脚本名称','巡检结果','创建时间','分派阅读人'] }
+                #{/crud.tsmtable}
+                    </div>
+                </div>
+        </div>
+    </div>
+</div>
+<div id="modal-detail" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addJobLabel"
+     style="display: none;">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">巡检结果详细</h4>
+            </div>
+            <div class="modal-body">
+                <div id="detailListTable">
+                #{crud.tsmtable fields:['任务名称','告警等级','巡检结果','创建时间'] }
+					#{/crud.tsmtable}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modal-distribute" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addJobLabel"
+     style="display: none;">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">分派人员</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table class="table table-bordered">
+                            <tbody>
+                            <tr>
+                                <td width="10%">用户分组：</td>
+                                <td width="40%"><select class="form-control" name="userGroup" id="userGroup"
+                                                        onchange="getUser()" required>
+                                </select>
+                                <td width="10%">负责人：</td>
+                                <td width="40%">
+                                    <select class="form-control" name="user_id" id="user_id" required>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" align="center">
+                                    <span><button class="btn btn-primary" onclick="return setDistributeUser()">确定</button></span>
+                                    <span><button class="btn btn-primary"onclick="clearnSel()">清空</button></span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modal-form" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addJobLabel" style="display: none;">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">巡检结果详情</h4>
+            </div>
+            <div class="modal-body">
+            <div id="resultDeatil"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        getJobList();
+    });
+    //清空
+    clearnSel = function () {
+        $("#userGroup").val("");
+        $("#user_id").val("");
+    }
+    clearnTable = function () {
+        $("#jobName").val("");
+        $("#nodeLayered").val("");
+        $("#nName").val("");
+        $("#scriptName").val("");
+        $("#resultType").val("");
+        $("#queryTime").val("");
+        $("#ip").val("");
+    }
+    var resultId;
+    // 分派阅读人
+    setDistribute = function (id) {
+        resultId = id;
+        var url = "/TJobs/getGroup";
+        $.post(url, function (data) {
+            var myData = eval('(' + data + ')');
+            var opt = "<option value=''>请选择</option>";
+            for (var i = 0; i < myData.length; i++) {
+                opt += "<option value='" + myData[i].id + "' >" + myData[i].name + "</option>";
+            }
+            $("#userGroup").html(opt);
+            $('#modal-distribute').modal('show');
+        });
+    }
+    getUser = function () {
+        var groupId = $("#userGroup").val();
+        $.ajax({
+            url: "@{ShowLogging.getUser()}",
+            dataTypeString: 'text',
+            data: {
+                "groupId": groupId
+            },
+            success: function (data) {
+                var myData = eval('(' + data + ')');
+                var opt = "<option value=''>请选择</option>";
+                for (var i = 0; i < myData.length; i++) {
+                    opt += "<option value='" + myData[i].id + "' >" + myData[i].name + "</option>";
+                }
+                $("#user_id").html(opt);
+            }
+        });
+    }
+    function showResultDetail(id) {
+        $.ajax({
+            url: "@{ShowLogging.getResultDeatil()}",
+            data: {
+                "id": id
+            },
+            success: function (data) {
+                $("#resultDeatil").html(data);
+            }
+        });
+    	$("#modal-form").modal('show');
+    }
+    //选择分派人员
+    function setDistributeUser() {
+        var user_id = $("#user_id").val();
+        if (user_id == "" || user_id == null) {
+            toastr.error('未选择派发人员!');
+            return false;
+        }
+        var url = "/ShowLogging/setDistributeUser?resultId=" + resultId + "&user_id=" + user_id;
+        $.post(url, function (data) {
+            if (data == 'false') {
+                toastr.error('分派人员失败!');
+            }
+            if (data == 'true') {
+                $("#" + resultId + "res").html('已派发');
+                $("#" + resultId + "res").attr("disabled", "disabled");
+            }
+        });
+        $("#modal-distribute").modal('hide');
+    }
+    // 条件查询
+    var resultDataTable;
+    function getJobList() {
+
+        var jobName = $("#jobName").val();
+        var nodeLayered = $("#nodeLayered").val();
+        var nName = $("#nName").val();
+        var scriptName = $("#scriptName").val();
+        var resultType = $("#resultType").val();
+        var queryTime = $("#queryTime").val();
+        var ip = $("#ip").val();
+        var userName = $("#userName").val();
+        var $searchResult = $('#crudListTable table');
+        if (resultDataTable) {
+            resultDataTable.fnClearTable(false);
+            $searchResult.dataTable().fnDestroy();
+        } else {
+            $searchResult.show();
+        }
+        resultDataTable = $('#crudListTable table').dataTable({
+            "bProcessing": true,
+            "bServerSide": false,
+            "iDisplayLength": 20,
+            "bLengthChange": false,
+            "sPaginationType": "full_numbers",
+            "oLanguage": {
+                "sZeroRecords": "没有任何数据",
+                "sSearch": "搜索 ",
+                "oPaginate": {
+                    "sFirst": "首页",
+                    "sPrevious": "上一页",
+                    "sNext": "下一页",
+                    "sLast": "最后一页"
+                }
+            },
+            "sAjaxSource": '/ShowLogging/getStatistics?jobName='
+            + jobName
+            + '&nodeLayered='
+            + nodeLayered
+            + '&nName='
+            + nName
+            + '&scriptName='
+            + scriptName
+            + '&resultType='
+            + resultType
+            + '&queryTime='
+            + queryTime
+            + '&ip='
+            + ip
+            + '&userName='
+            + userName,
+            "fnServerParams": function (aoData) {
+                $(".dataTables_info").hide();
+                $(".dataTables_filter").hide();
+                aoData.push({
+                    "name": "Fields",
+                    "value": "T_RESULT_ALARM_LEVEL ,T_JOB_NAME, T_NODE_TYPE_NAME,T_NODE_NAME,T_NODE_IP,T_SCRIPT_NAME,T_RESULT_OUTPUT ,T_RESULT_TIME,DISTRIBUTE"
+                });
+            }
+        });
+    }
+</script>

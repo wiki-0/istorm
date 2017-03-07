@@ -1,0 +1,16 @@
+#{extends 'example.html' /}
+#{set title:'IStorm Patrol' /}
+
+<div>
+<div id="crudListTable">
+#{crud.table fields:['T_SCRIPT_VARIABLE_NAME','T_SCRIPT_VARIABLE_VALUE','T_SCRIPT_VARIABLE_DESC'] }
+ #{crud.custom 'T_SCRIPT_VARIABLE_DESC'}
+                		${object.T_SCRIPT_VARIABLE_DESC.length()>90 ? object.T_SCRIPT_VARIABLE_DESC.substring(0,80)+"..." : object.T_SCRIPT_VARIABLE_DESC }
+        #{/crud.custom}
+#{/crud.table}
+</div>
+<div id="crudListPagination">
+#{crud.pagination /}
+</div>
+
+</div>

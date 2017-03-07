@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>#{get 'title' /} | &{'system.title'}</title>
+<link href="@{'/new_public/css/bootstrap.min.css'}" rel="stylesheet">
+<link href="@{'/new_public/font-awesome/css/font-awesome.css'}" rel="stylesheet">
+<link href="@{'/new_public/css/plugins/slick/slick.css'}" rel="stylesheet">
+<link href="@{'/new_public/css/plugins/slick/slick-theme.css'}" rel="stylesheet">
+<link rel="stylesheet" media="screen" href="@{'/new_public/css/plugins/iCheck/custom.css'}" type="text/css">
+<link href="@{'/new_public/css/plugins/fullcalendar/fullcalendar.css'}" rel="stylesheet">
+<link href="@{'/new_public/css/plugins/fullcalendar/fullcalendar.print.css'}" rel='stylesheet' media='print'>
+<link href="@{'/new_public/css/plugins/toastr/toastr.min.css'}"	rel="stylesheet">
+<link href="@{'/new_public/css/animate.css'}" rel="stylesheet">
+<link href="@{'/new_public/css/style.css'}" rel="stylesheet">
+<!-- Data Tables -->
+<link href="@{'/new_public/css/plugins/dataTables/dataTables.bootstrap.css'}" rel="stylesheet">
+<link href="@{'/new_public/css/plugins/dataTables/dataTables.responsive.css'}" rel="stylesheet">
+<link href="@{'/new_public/css/plugins/dataTables/dataTables.tableTools.min.css'}" rel="stylesheet">
+<link rel="stylesheet" media="screen" href="@{'/new_public/css/plugins/iCheck/custom.css'}" type="text/css">
+<!-- Chosen -->
+<link href="@{'/new_public/css/plugins/chosen/chosen.css'}" rel="stylesheet">
+<link href="@{'/new_public/js/multiselect/css/multi-select.css'}" rel="stylesheet">
+<!-- Datepicker -->
+<link href="@{'/new_public/css/plugins/datapicker/bootstrap-datetimepicker.min.css'}" rel="stylesheet">
+<!-- Ztree -->
+<link href="@{'/new_public/css/zTreeStyle/zTreeStyle.css'}" rel="stylesheet">
+<!-- sweetalert -->
+<link href="@{'/new_public/css/sweetalert.css'}" rel="stylesheet">
+<!-- js -->
+<script src="@{'/new_public/js/plugins/fullcalendar/moment.min.js'}"></script>
+<script src="@{'/new_public/js/jquery-2.1.1.js'}"></script>
+<script src="@{'/new_public/js/bootstrap.min.js'}"></script>
+<script src="@{'/new_public/js/plugins/metisMenu/jquery.metisMenu.js'}"></script>
+<script src="@{'/new_public/js/plugins/slimscroll/jquery.slimscroll.min.js'}"></script>
+<script type="text/JavaScript" src="@{'new_public/js/plugins/slick/slick.min.js'}"></script>
+<script src="@{'public/javascripts/plugins/peity/jquery.peity.min.js'}"></script>
+<script src="@{'/new_public/js/inspinia.js'}"></script>
+<script src="@{'/new_public/js/plugins/pace/pace.min.js'}"></script>
+<script src="@{'/new_public/js/jquery-ui.custom.min.js'}"></script>
+
+<!-- Data Tables -->
+<script src="@{'/new_public/js/plugins/dataTables/jquery.dataTables.js'}"></script>
+<script src="@{'/new_public/js/plugins/dataTables/dataTables.bootstrap.js'}"></script>
+*{<script src="@{'/new_public/js/plugins/dataTables/dataTables.responsive.js'}"></script>}*
+<script src="@{'/new_public/js/plugins/dataTables/dataTables.tableTools.min.js'}"></script>
+<!-- Custom and plugin javascript -->
+<script src="@{'/new_public/js/plugins/datepicker/bootstrap-datetimepicker.min.js'}"></script>
+<script src="@{'/new_public/js/plugins/My97DatePicker/WdatePicker.js'}"></script>
+<!-- jQuery UI -->
+<script src="@{'/new_public/js/plugins/jquery-ui/jquery-ui.min.js'}"></script>
+<!-- Toastr -->
+<script src="@{'/new_public/js/plugins/toastr/toastr.min.js'}"></script>
+
+<!-- Chosen -->
+<!-- script src="@{'/new_public/js/plugins/chosen/chosen.jquery.js'}"></script -->
+<script src="@{'/new_public/js/multiselect/js/jquery.multi-select.js'}"></script>
+<!-- iCheck -->
+<script src="@{'new_public/js/plugins/iCheck/icheck.min.js'}"></script>
+<script src="@{'/public/javascripts/demo/peity-demo.js'}"></script>
+<script src="@{'new_public/js/plugins/fullcalendar/fullcalendar.min.js'}"></script>
+<!-- Ztree -->
+<script src="/new_public/js/jquery.ztree.core.min.js"></script>
+<script src="/new_public/js/jquery.ztree.excheck.min.js"></script>
+<script src="/new_public/js/jquery.ztree.exedit.min.js"></script>
+<!-- sweetalert -->
+<script src="/new_public/js/sweetalert.min.js"></script>
+<!-- Echarts -->
+<script src="@{'new_public/js/plugins/echarts/echarts.common.min.js'}"></script>
+<script src="@{'/public/assets/echarts/echarts.js'}"></script>
+
+</head>
+<body>
+	<div id="wrapper">
+	    <!-- <div class="row border-bottom head-index"> 旧版 -->
+	    <div class="row head-index">
+				<nav class="navbar navbar-static-top" role="navigation">
+					<div class="navbar-header">
+						<a class="navbar-minimalize minimalize-styl-2 btn btn-primary "
+							href="#"><i class="fa fa-bars"></i> </a>
+						 <a class="navbar-minimalize minimalize-styl-2 btn btn-primary icon-sy"
+							href="@{DashBoard.index()}" title="首页">
+							<i class="fa fa-home" ></i>
+						 </a>
+					<!-- <form role="search" class="navbar-form-custom"
+							action="search_results.html">
+							<div class="form-group">
+								<input type="text" placeholder="Search..." class="form-control"
+									name="top-search" id="top-search">
+							</div>
+						</form> -->
+					</div>
+                    <ul class="nav navbar-top-links navbar-left">
+                        <li class="dropdown">
+                            <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
+                                <i class="fa fa-bell btn-primary"></i>  <span class="label label-warning" id="belltotal">0</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-alerts" id="bellalert">
+                            </ul>
+                        </li>
+                    </ul>
+					<ul class="nav navbar-top-links navbar-right">
+						<li>
+							<span class="m-r-sm text-muted welcome-message">欢迎使用&{'system.title'} </span>
+						</li>
+						<li>
+							<a href="@{Secure.logout()}"> <i class="fa fa-sign-out"></i> &{'LogOut'}</a>
+						</li>
+					</ul>
+				</nav>
+		</div>
+		<nav class="navbar-default navbar-static-side ng-scope con-left" role="navigation"  >
+			<div class="sidebar-collapse" >
+				<ul class="nav metismenu" id="side-menu">
+					<li class="nav-header">
+						<div class="dropdown profile-element">
+							<span> 
+								<img alt="image" class="img-circle"	src="@{'/public/images/logo.jpg'}" />
+							</span> 
+							<a data-toggle="dropdown" class="dropdown-toggle" href="#">
+								<span class="clear"> 
+									<span class="block m-t-xs"><strong class="font-bold">${session.get("displayName")}</strong>
+									</span>
+								</span>
+							</a>
+						</div>
+						<div class="logo-element">Hi!</div>
+					</li>
+					<!-- 测试 -->
+					<li><a href="#"> <i class="fa fa-desktop"></i>
+					    <span class="nav-label">&{'main.monitor'}</span><span class="fa arrow"></span>	
+					</a>
+						<ul class="nav nav-second-level">
+							<li><a href="@{TNodes.index()}">&{'main.monitor.node'}</a></li>
+							<li><a href="@{NodeType.index()}">&{'main.monitor.deviceLayered'}</a></li>
+
+						</ul></li>
+					<li><a href="#"> <i class="fa fa-file-code-o"></i><span
+							class="nav-label">&{'main.script'}</span> <span class="fa arrow"></span>
+					</a>
+						<ul class="nav nav-second-level">
+							<li><a href="@{ScriptManage.index()}">&{'main.script.manage'}</a></li>
+							<li><a href="@{ScriptGroup.index()}">&{'main.script.type'}</a></li>
+							<li><a href="@{ScriptVariable.index()}">&{'main.script.variable'}</a></li>
+						</ul></li>
+					<li><a href="@{TJobs.index()}"> <i class="fa fa-tasks"></i><span
+							class="nav-label">&{'main.task'}</span></span>
+						</a>
+					</li>
+					<li><a href="#"> <i class="fa fa-list-alt"></i><span
+							class="nav-label">&{'main.show'}</span> <span class="fa arrow"></span></a>
+						<ul class="nav nav-second-level">
+							<!-- li><a href="#">&{'main.show.statistics'}</a></li-->
+							<li><a href="@{ShowLogging.index()}">&{'main.show.portal'}</a></li>
+						</ul></li>
+					<li><a href="#"> <i class="fa fa-bar-chart-o"></i> <span
+							class="nav-label">&{'main.report'}</span><span class="fa arrow"></span>
+					</a>
+						<ul class="nav nav-second-level">
+							<li><a href="@{ReportDs.index()}">&{'main.report.diy'}</a></li>
+							<li><a href="@{ReportEs.index()}">&{'main.report.export'}</a></li>
+							<li><a href="@{ReportExcel.index()}">&{'main.report.chart'}</a></li>
+						</ul></li>
+					<li><a href="#"> <i class="fa fa-cog"></i> <span
+							class="nav-label">&{'main.system'}</span><span class="fa arrow"></span>
+					</a>
+						<ul class="nav nav-second-level">
+							<li><a href="@{Users.index()}">&{'main.system.user'}</a></li>
+							<li><a href="@{UserGroup.index()}">&{'main.system.group'}</a></li>
+							<!-- li><a href="@{tparamsmanage.index()}">&{'main.system.param'}</a></li -->
+							<li><a href="@{DataDictionarys.index()}">&{'main.system.dd'}</a></li>
+							<li><a href="@{Licenses.index()}">&{'main.system.license'}</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</nav>
+		<div id="page-wrapper" class="gray-bg dashbard-1" style="margin-top: 60px">
+			#{doLayout /}
+		</div>
+	</div>
+    <div id="modal-bell" class="modal fade" tabindex="-1" role="dialog" style="display: none;">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                    </button>
+                    <h4 class="modal-title">是否清除:</h4>
+                </div>
+                <div class="modal-body">请确定是否清除告警通知?</div>
+                <div class="modal-footer">
+                    <button class="btn btn-danger" onclick="deleteBell()">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="modal-delALL" class="modal fade" tabindex="-1" role="dialog" style="display: none;">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                    </button>
+                    <h4 class="modal-title">是否清除:</h4>
+                </div>
+                <div class="modal-body">请确定是否清除所有的告警通知?</div>
+                <div class="modal-footer">
+                    <button class="btn btn-danger" onclick="deleteAll()">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+	<script>
+	
+		window.onload = show;
+
+        var idBell = '';
+
+        function delBell(id){
+            idBell = id;
+        }
+        //删除告警
+        function deleteBell()
+        {
+            var url="/ShowLogging/delResult?id="+idBell;
+            $.post(url, function(data){
+                if(data=='true')
+                {
+                    window.location.reload();//刷新当前页面.
+                }
+            });
+            $("#modal-bell").modal('hide');
+        }
+        //删除全部
+        function deleteAll()
+        {
+            var url="/ShowLogging/deleteAll";
+            $.post(url, function(data){
+                if(data=='true')
+                {
+                    window.location.reload();//刷新当前页面.
+                }
+            });
+            $("#modal-delALL").modal('hide');
+        }
+        //获得分配告警内容
+        $.ajax({
+            url:"@{ShowLogging.getBell()}",
+            success: function(data){
+                if (data == "null"){
+                    var msg = "没有收到任何通知"
+                    $("#bellalert").html(msg);
+                }else {
+                    $("#bellalert").html(data);
+                }
+            }
+        });
+        //获得分配告警数量
+        $.ajax({
+            url:"@{ShowLogging.getBellSize()}",
+            success: function(data){
+                $("#belltotal").html(data);
+            }
+        });
+		function show() {
+			var a = window.location.href;
+			$('.nav-second-level li a').each(function() {
+				if (a.indexOf($(this).attr("href")) > 0) {
+					$(this).parent().addClass('active');
+					$(this).parent().parent().addClass('in');
+					$(this).parent().parent().parent().addClass('active');
+				}
+			});
+		}
+	</script>
+</body>
+</html>

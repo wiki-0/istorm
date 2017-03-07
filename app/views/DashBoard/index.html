@@ -1,0 +1,720 @@
+#{extends 'main.html' /} 
+#{script 'data/bashboard.js' /}
+<div class="row wrapper border-bottom white-bg page-heading">
+	<div class="col-lg-10">
+		<h2>首页</h2>
+	</div>
+	<div class="col-lg-2"></div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12" style="margin:0">
+		<div class="slick_demo_2">
+			<div>
+				<div class="ibox-content">
+					<h2>${barname}</h2>
+					<div id="myBarChart" style="height: 300px"></div>
+				</div>
+			</div>
+			<div>
+				<div class="ibox-content">
+					<h2>设备类型统计</h2>
+					<div id="myPieChart" style="height: 300px"></div>
+				</div>
+			</div>
+			<div>
+				<div class="ibox-content">
+					<h2>故障设备排名</h2>
+					<div id="myFunnelChart" style="height: 300px"></div>
+				</div>
+			</div>
+			<div>
+				<div class="ibox-content">
+					<h2>挂载任务</h2>
+					<div id="myLineChart" style="height: 300px"></div>
+				</div>
+			</div>
+			<div>
+				<div class="ibox-content">
+					<h2>存储容量巡检</h2>
+					<div id="myStorageChart" style="height: 300px;"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<br/>
+
+
+	<div class="row  border-bottom white-bg dashboard-header">
+		<div class="col-sm-3">
+			<h3>我的巡检结果(前24小时)</h3>
+			<div style="height:10px"></div>
+			<ul class="list-group clear-list m-t">
+				<li class="list-group-item fist-item"><span class="pull-right">${list.get(1)}</span><span
+					class="label label-danger">1</span>严重告警总数</li>
+				<li class="list-group-item"><span class="pull-right">${list.get(0)}</span><span
+					class="label label-info">2</span>巡检次数总数</li>
+				<li class="list-group-item"><span class="pull-right">${list.get(2)}</span><span
+					class="label label-warning">3</span>巡检失败数</li>
+				<li class="list-group-item"><span class="pull-right">${list.get(3)}</span>
+					<!-- span class="label label-default">4</span>巡检成功数--> <span
+					class="label label-primary">4</span>巡检成功数</li>
+				<li class="list-group-item"><span class="pull-right">${list.get(4)}</span><span
+					class="label label-success">5</span>我处理的工单</li>
+			</ul>
+		</div>
+		<div class="col-sm-6">
+			<h3>一周内告警统计</h3>
+			<div id="myChart" style="height: 270px;"></div>
+		</div>
+		<div class="col-sm-3">
+			<div id="myHealthy" style="height: 300px;"></div>
+		</div>
+	</div>
+
+<br/>
+<div class="wrapper wrapper-content">
+	<div class="row animated fadeInDown">
+	<div class="col-lg-3">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>巡检任务</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <!-- <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a> -->
+                        <!-- ul class="dropdown-menu dropdown-user">
+                            <li><a href="#">Config option 1</a>
+                            </li>
+                            <li><a href="#">Config option 2</a>
+                            </li>
+                        </ul-->
+                        <!-- <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a> -->
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div id="external-events">
+                    <div class="row">
+						<div class="col-sm-12 m-b-xs">
+							<div data-toggle="buttons" class="btn-group">
+								<label class="btn btn-sm btn-white active" onclick="getday()"> <input
+									type="radio" id="option1" name="options"> 天
+								</label> <label class="btn btn-sm btn-white" onclick="getweek()"> <input type="radio"
+									id="option2"  name="options"> 周
+								</label> <label class="btn btn-sm btn-white" onclick="getmonth()"> <input type="radio"
+									id="option3" name="options"> 月
+								</label>
+							</div>
+						</div>
+					</div>
+				<div class="table-responsive">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>设备分层</th>
+								<th>严重告警个数</th>
+								<th>巡检失败个数</th>
+							</tr>
+						</thead>
+						<tbody >
+							
+							#{list items:listmap, as:"ls"}
+							<tr  class="day"  onclick="">
+								<td>${ls.name}</td>
+								<td><span class="label label-danger">${ls.severityday}</span></td>
+								<td>
+									${ls.sumErrorDay}<i class="fa fa-level-up"></i>
+								</td>
+							</tr>
+							#{/list}
+							#{list items:listmap, as:"ls"}
+								<tr  class="week" style="display:none">
+									<td>${ls.name}</td>
+									<td><span class="label label-danger">${ls.severityweek}</span></td>
+									<td>
+										<span class="bar">${ls.percentweek}</span>
+									</td>
+								</tr>
+							#{/list}
+							#{list items:listmap, as:"ls"}
+								<tr  class="month" style="display:none">
+									<td>${ls.name}</td> 
+									<td><span class="label label-danger">${ls.severitymonth}</span></td>
+									<td>
+										<span id="${ls.name}_up" data-diameter="40" class="updating-chart">${ls.percentmonthup}</span>
+										<span style="display:none" id="${ls.name}_down">${ls.percentmonthdown}</span>
+									</td>
+								</tr>
+							#{/list}
+						</tbody>
+					</table>
+				</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+		<div class="col-lg-9">
+			<div class="ibox float-e-margins">
+				<div class="ibox-title">
+					<h5>任务概览</h5>
+					<div class="ibox-tools">
+						<a class="collapse-link"> <i class="fa fa-chevron-up"></i></a>
+					</div>
+				</div>
+				<div class="ibox-content">
+					<div id="calendar"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="modal-form" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addJobLabel"
+     style="display: none;">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">巡检任务列表</h4>
+            </div>
+            <div class="modal-body">
+                <div id="resultDeatil"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+<!--
+.slick_demo_2 .ibox-content {
+	margin: 0 10px;
+}
+-->
+</style>
+<script type="text/javascript">
+	$(document).ready(function() {
+		setTimeout(function() {
+			toastr.options = {
+				closeButton : true,
+				progressBar : true,
+				showMethod : 'slideDown',
+				timeOut : 4000
+			};
+			toastr.success('欢迎使用' + "&{'system.title'}");
+		}, 1300);
+	});
+	$(document).ready(function() {
+		$('.slick_demo_2').slick({
+			dots:true,
+			infinite : false,
+			slidesToShow : 3,
+			slidesToScroll : 1,
+			responsive : [ {
+				breakpoint : 1024,
+				settings : {
+					slidesToShow : 3,
+					slidesToScroll : 3,
+					infinite : true,
+					dots : true
+				}
+			}, {
+				breakpoint : 600,
+				settings : {
+					slidesToShow : 2,
+					slidesToScroll : 2
+				}
+			}, {
+				breakpoint : 480,
+				settings : {
+					slidesToShow : 1,
+					slidesToScroll : 1
+				}
+			} ],
+		});
+	});
+	
+	function initEcharts(optionLine,optionPie,optionHa,opForce,optionBarOther,optionFunnel,optionStorage)
+	{
+	/*
+	 * 按需加载
+	 * 引入echart.js依赖的zrender.js, 再引入echart.js
+	 */
+	 require.config({
+		 paths : {
+				echarts : "@{'/public/assets/echarts'}"
+			}
+     });
+	/*
+	 *按需加载
+	 */
+	 require([ 'echarts', 'echarts/chart/line', 'echarts/chart/gauge',
+				'echarts/chart/map', 'echarts/chart/bar', 'echarts/chart/pie',
+				'echarts/chart/funnel','echarts/chart/force'
+				//,'echarts/util/mapData/params'
+				],
+	//渲染ECharts图表
+	function DrawEChart(ec) {
+		//线形图
+		//图表渲染的容器对象
+		var chartContainer = document.getElementById("myChart");
+		//加载图表
+		var myChart = ec.init(chartContainer);
+		myChart.setOption(optionLine);
+
+		//健康度
+		var myHealthyContainer = document.getElementById("myHealthy");
+		var myHealthyChart = ec.init(myHealthyContainer);
+		myHealthyChart.setOption(optionHa);
+		//线性图
+		var myLineContainer = document.getElementById("myLineChart");
+		var myLineChart = ec.init(myLineContainer);
+		//var opForce = getOptionForce();
+		myLineChart.setOption(opForce);
+		//myLineChart.setOption(optionLineOther);
+		
+		
+		//柱状图
+		var myBarContainer = document.getElementById("myBarChart");
+		var myBarChart = ec.init(myBarContainer);
+		myBarChart.setOption(optionBarOther);
+		//饼状图
+		var myPieContainer = document.getElementById("myPieChart");
+		var myPierChart = ec.init(myPieContainer);
+		myPierChart.setOption(optionPie);
+		//漏斗图
+		var myFunnelContainer = document.getElementById("myFunnelChart");
+		var myFunnelChart = ec.init(myFunnelContainer);
+		myFunnelChart.setOption(optionFunnel);
+		
+		//存储容量巡检
+		var myPieStorage = document.getElementById("myStorageChart");
+		var myPieStorageChart = ec.init(myPieStorage);
+		myPieStorageChart.setOption(optionStorage);
+		/**
+		require('echarts/util/mapData/params').params.baiduBuilding = {
+		    getGeoJson: function (callback) {
+		        $.ajax({
+		            url: "@{'/public/svg/baidu-building.svg'}",
+		            dataType: 'xml',
+		            success: function(xml) {
+		                callback(xml)
+		            }
+		        });
+		    }
+		}
+		//地图
+		var myMapContainer = document.getElementById("myMapChart");
+		var myMapChart = ec.init(myMapContainer);
+		myMapChart.setOption(optionMap);
+		**/
+	});
+	
+	}
+	var date = new Date();
+	var d = date.getDate();
+	var m = date.getMonth();
+	var y = date.getFullYear();
+	var ee1 = [ {
+		title : 'All Day Event',
+		start : new Date(y, m, 1)
+	}, {
+		title : 'Long Event',
+		start : new Date(y, m, d - 5),
+		end : new Date(y, m, d - 2)
+	}, {
+		id : 999,
+		title : 'Repeating Event',
+		start : new Date(y, m, d - 3, 16, 0),
+		allDay : false
+	}, {
+		id : 999,
+		title : 'Repeating Event',
+		start : new Date(y, m, d + 4, 16, 0),
+		allDay : false
+	}, {
+		title : 'Meeting',
+		start : new Date(y, m, d, 10, 30),
+		allDay : false
+	}, {
+		title : 'Lunch',
+		start : new Date(y, m, d, 12, 0),
+		end : new Date(y, m, d, 14, 0),
+		allDay : false
+	}, {
+		title : 'Birthday Party',
+		start : new Date(y, m, d + 1, 19, 0),
+		end : new Date(y, m, d + 1, 22, 30),
+		allDay : false
+	}, {
+		title : 'Click for Google',
+		start : new Date(y, m-1, 28),
+		end : new Date(y, m, 29),
+		url : 'http://google.com/'
+	} ];
+	
+	$(document).ready(function() {
+		$('.i-checks').iCheck({
+			checkboxClass : 'icheckbox_square-green',
+			radioClass : 'iradio_square-green'
+		});
+		$('#external-events div.external-event').each(function() {
+			// store data so the calendar knows to render an event upon drop
+			$(this).data('event', {
+				title : $.trim($(this).text()), // use the element's text as the event title
+				stick : true
+			// maintain when user navigates (see docs on the renderEvent method)
+			});
+			// make the event draggable using jQuery UI
+			$(this).draggable({
+				zIndex : 1111999,
+				revert : true, // will cause the event to go back to its
+				revertDuration : 0
+			//  original position after the drag
+			});
+		});
+		$('#calendar').fullCalendar({
+			header : {
+				left : 'prev,next today',
+				center : 'title',
+				right : ''
+			},
+			firstDay:1,
+			weekends:true,
+			editable: false,
+			titleFormat:
+
+			{ month: 'YYYY MMMM', // September 2009
+
+			     week: "YYYY MMM D日", // Sep 7 - 13 2009
+
+			     day: 'dddd, YYYY MMM D日'// Tuesday, Sep 8, 2009 
+			  },
+			buttonText:
+			{ prev: '上一页', // left triangle
+			    next:'下一页', // right triangle
+                today: '当前月',
+			    month: '月',
+			    week: '周',
+			    day: '天' },
+		    monthNames: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],  
+            monthNamesShort: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],  
+            dayNames: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],  
+            dayNamesShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],  
+            today: ["今天"],  
+			//editable : true,
+			droppable : true, // this allows things to be dropped onto the calendar
+			drop : function() {
+				// is the "remove after drop" checkbox checked?
+				if ($('#drop-remove').is(':checked')) {
+					// if so, remove the element from the "Draggable Events" list
+					$(this).remove();
+				}
+			},
+			events:function(start, end,timezone, callback) {
+  				$.ajax({
+  					url :"/Dashboard/taskJSON?start="+start+"&end="+end+"&ran="+Math.random(),
+  					success : function(data){
+  						//alert(data);
+  						callback(eval('('+data+')'));
+  					}		
+  				})
+			 },
+			 dayClick: function(date, jsEvent, view, resourceObj) {
+
+			    },
+			 eventClick:function( event, jsEvent, view ) {
+                     var url="/DashBoard/getJobDeatil?id="+event.className+"&start="+event.start+"&color="+event.color;
+                     $.post(url, function(data){
+                         $("#resultDeatil").html(data);
+                         $("#modal-form").modal('show');
+                     });
+				}
+			/**
+			eventSources: [
+              // your event source
+              {
+            	  events:function(start, end,timezone, callback) {
+      				$.ajax({
+      					url :"/Dashboard/taskJSON?start="+start+"&end="+end+"&ran="+Math.random(),
+      					success : function(data){
+      						//alert(data);
+      						var ee4=eval('('+data+')');
+      						callback(ee1);
+      					}		
+      				})
+      			},
+                  color: 'yellow',   // an option!
+                  textColor: 'black' // an option!
+              }
+              // any other sources...
+          ]
+			**/
+		});
+		
+		
+		// 重新注册 左上角三个按钮 ： 功能按钮  
+// 	    jQuery('.fc-button-group .fc-corner-left').unbind('click');  
+// 	    jQuery('.fc-button-group .fc-corner-right').unbind('click');  
+
+// 	    jQuery('.fc-button-group .fc-corner-left').bind('click', fnMthChange); 
+// 	    jQuery('.fc-button-group .fc-corner-right').bind('click', fnMthChange);  
+// 	    jQuery('.fc-today-button fc-button fc-state-default fc-corner-left fc-corner-right fc-state-disabled').bind('click', fnMthChange);  
+// 	    function fnMthChange() {  
+// 	    	alert(2)
+// 	    	$('#calendar').fullCalendar('next');
+// 	    	$('#calendar').fullCalendar( 'addEventSource', function (start, end,timezone, callback) {
+// 	    		$.ajax({
+// 	    			url :"/Dashboard/taskJSON?start="+start+"&end="+end+"&ran="+Math.random(),
+// 	    			success : function(data){
+// 	    				//alert(data);
+// 	    				callback(eval('('+data+')'));
+// 	    			}		
+// 	    		})
+// 	    	} )
+// 	    } 
+	});
+	
+	var optionPieObj,optionLineObj,opForce,optionBarObj,optionFunnelObj,optionStorageObj;
+	$(document).ready(function() {
+		$.ajaxSettings.async = false;
+		$.ajax({
+			type : "POST",//请求方式  
+			url : "/DashBoard/queryPieData",//地址，就是action请求路径  
+			dataType : "json",//数据类型text xml json  script  jsonp
+			success : function(data) {//返回的参数就是 action里面所有的有get和set方法的参数
+				$.each(data, function(index, valu) {
+					if (index == "x86") {
+						x86 = valu;
+					}
+					else if (index == "aix") {
+						aix = valu;
+					}
+					else if (index == "vmWare") {
+						vmWare = valu;
+					}
+					else if (index == "hyperv") {
+						hyperv = valu;
+					}
+					else if (index == "switchNode") {
+						switchNode = valu;
+					}
+					else if (index == "controller") {
+						controller = valu;
+					}
+				});
+				optionPieObj = getPieData();
+				//initEcharts(optionPie);
+			}
+		});
+		
+		$.ajaxSettings.async = false;
+		$.ajax({
+			url:"/DashBoard/patrol",
+			type:"post",
+			dataType:"json",
+			data:{},
+			success:function(data){
+				$.each(data, function(index, valu) {
+					if (index == "aixDayData") {
+						aixXData = eval(valu);
+					}
+					else if (index == "aixSumData") {
+						aixSeries.push({
+							name : '严重告警',
+							type : 'line',
+							data :  eval(valu)
+						});
+						
+					}else if (index == "backupSumData") {
+						aixSeries.push({
+							name : '主要告警',
+							type : 'line',
+							data : eval(valu)
+						});
+					}else if (index == "storageSumData") {
+						aixSeries.push({
+							name : '次要告警',
+							type : 'line',
+							data : eval(valu)
+						});
+					}else if (index == "switchSumData") {
+						aixSeries.push({
+							name : '提示告警',
+							type : 'line',
+							data : eval(valu)
+						});
+					}
+				});
+				optionLineObj = getInitOption();
+				//initEcharts(optionLine);
+			},
+			error:function(){
+				alert("错误");
+			}
+		});
+		$.ajaxSettings.async = false;
+		$.ajax({
+			url:"/DashBoard/getOptionForce",
+			type:"post",
+			dataType:"json",
+			data:{},
+			success:function(data){
+				$.each(data, function(index, valu) {
+					if (index == "dataNodes") {
+						alert(valu);
+						dataNodes = eval(valu);
+					}
+					if (index == "dataLinks") {
+						dataLinks=eval(valu);
+					}
+				});
+				opForce = getOptionForce();
+				//initEcharts(optionLine);
+			},
+			error:function(){
+				alert("错误");
+			}
+		});
+		
+		$.ajaxSettings.async = false;
+		$.ajax({
+			url:"/DashBoard/columnar",
+			type:"post",
+			dataType:"json",
+			data:{},
+			success:function(data){
+				$.each(data, function(index, valu) {
+					if (index == "xstr") {
+						monthData = eval(valu);
+					}
+					if (index == "ystrerror") {
+						sumpatrol.push({
+							name : '告警总数',
+							type : 'bar',
+							stack : '总量',
+							data :  eval(valu)
+						});
+					}
+					if (index == "ystr") {
+						sumpatrol.push({
+							name : '巡检总数',
+							type : 'bar',
+							stack : '总量',
+							data :  eval(valu)
+						});
+					}
+				});
+				optionBarObj = getInitOptionBar();
+			}
+		});
+		
+		$.ajaxSettings.async = false;
+		$.ajax({
+			url:"/DashBoard/funnel",
+			type:"post",
+			dataType:"json",
+			data:{},
+			success:function(data){
+				$.each(data, function(index, valu) {
+					if (index == "str") { 
+						funneltype =eval(valu);
+					}
+					if (index == "dataList") {
+						funnelnum = valu;
+					}
+				});
+				optionFunnelObj = getInitOptionFunnel();
+			},
+			error:function(){
+				alert("错误");
+			}
+		});
+		
+		$.ajaxSettings.async = false;
+		$.ajax({
+			url:"/DashBoard/capacity",
+			type:"post",
+			dataType:"json",
+			data:{},
+			success:function(data){
+				$.each(data, function(index, valu) {
+					if (index == "used") { 
+						used = valu;
+					}
+					if (index == "unused") {
+						unused = valu;
+					}
+				});
+				optionStorageObj = getOptionStorage();
+			},
+			error:function(){
+				alert("错误");
+			}
+		});
+		
+		percentage = ${list.get(5)};
+		var optionHa = getInitOptionHa();
+		
+		initEcharts(optionLineObj,optionPieObj,optionHa,opForce,optionBarObj,optionFunnelObj,optionStorageObj);
+	});
+	
+	
+	$(document).ready(function(){
+		$(".day").show();
+		$(".week").hide();
+		$(".month").hide();
+		var updatingChart = $(".updating-chart").peity("line", { fill: '#1ab394',stroke:'#169c81', width: 64 })
+	});
+	
+	function getday(){
+		$(".day").show();
+		$(".week").hide();
+		$(".month").hide();
+	} 
+	
+	function getweek(){
+		$(".day").hide();
+		$(".week").show();
+		$(".month").hide();
+	} 
+	var str1 = "";
+	var str2 = "";
+	function getmonth(){
+		$(".day").hide();
+		$(".week").hide();
+		$(".month").show();
+		
+		setInterval(function() {
+			var up = $("[id*='_up']");
+			var down = $("[id*='_down']");
+			for(var i=0;i<up.length;i++){
+			str1 = up[i].innerHTML;	
+			//alert(str1)
+			str2 = down[i].innerHTML;			
+			var s1 = str1.split(",");
+			var s2 = str2.split(",");
+			//alert(s1);
+			var tmp = s1[0];
+			//alert(tmp);
+			var tmps = s2[0];
+			s1.shift();
+			s2.shift();			
+			s1[s1.length] = tmps;
+			s2[s2.length] = tmp;			
+			up[i].innerHTML=s1.join(",");
+			down[i].innerHTML=s2.join(",");
+			//alert(str1);
+			var updatingChart = $(up).peity("line", { fill: '#1ab394',stroke:'#169c81', width: 64 })
+			}
+		}, 1000);
+		
+	}
+
+    
+</script>
+

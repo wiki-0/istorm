@@ -1,0 +1,201 @@
+#{extends 'main.html' /}
+<div class="row wrapper border-bottom white-bg page-heading">
+	<div class="col-lg-10">
+		<h2 style="font-size: 0px;"></h2>
+		<ol class="breadcrumb">
+			<li><a href="@{Application.index()}">首页</a></li>
+			<li class="active"><strong>&{'main.vcenter.user'}</strong></li>
+		</ol>
+	</div>
+	<div class="col-lg-2"></div>
+</div>
+<div class="row">
+	<div class="col-sm-12">
+		<div class="panel">
+			<div class="ibox-title">
+				<h5>VCenter配置</h5>
+			</div>
+			<div class="ibox-content">
+
+				<div class="table">
+					<form action="@{VCenterConfigs.list()}" method="post">
+						<table class="table table-condensed table-bordered">
+							<tbody>
+								<tr>
+									<td width="10%">用户名：</td>
+									<td width="40%"><input type="text" maxlength=20
+										class="form-control" id="UserName" name="T_USER_NAME" value="${list.get(0)}">
+										<label id="UserNameInput" style="display: none"><font
+											color="red">*必须输入英文,数字或下划线并以英文或下划线开头</font></label></td>
+									<td width="10%">密码：</td>
+									<td width="40%"><input type="password" maxlength=20
+										class="form-control" id="Password" name="T_USER_PASSWORD" value="${list.get(1)}">
+										<label id="PasswordInput" style="display: none;"><font
+											color="red">*必须输入</font></label></td>
+								</tr>
+								<tr>
+									<td>IP地址：</td>
+									<td><input type="text" maxlength=20 class="form-control"
+										id="DisplayName" name="T_USER_DISPLAY_NAME" value="${list.get(2)}"> <label
+										id="DisplayNameInput" style="display: none;"><font
+											color="red">*必须输入</font></label></td>
+									<td>是否进行巡检：</td>
+									<td><select maxlength=20 id="propertyName" class="form-control">
+										<option>是</option>
+										<option>否</option>
+									</select></td>
+								</tr>
+							</tbody>
+						</table>
+					</form>
+					<div class="table-footer text-center">
+						
+						<button class="btn btn-primary" onclick="return submitValidate()">确定</button>
+						<button class="btn btn-primary" onclick="reset()">清空</button>
+						<button class="btn btn-primary" onclick="return perform()">立即执行</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	
+	$(document).ready(function(){
+		var userName = '${list.get(0)}';
+		document.getElementById('propertyName').value = userName;
+		var password = '${list.get(1)}';
+		document.getElementById('propertyName').value = password;
+		var displayName = '${list.get(2)}';
+		document.getElementById('propertyName').value = displayName;
+		var propertyName = '${list.get(3)}';
+		if(propertyName=="1"){
+			document.getElementById('propertyName').value = '是';
+		}else if(propertyName=="0"){
+			document.getElementById('propertyName').value = '否';
+		}
+	});
+	
+	
+	function reset(){
+		document.getElementById('UserName').value = '';
+		document.getElementById('Password').value = '';
+		document.getElementById('DisplayName').value = '';
+		document.getElementById('propertyName').value = '是';
+	}
+	
+	function perform(){
+		$.ajax({
+	          type : "post",
+	          url : "/VCenterConfigs/renewal",
+	          dataType:"text",
+	          data:{},
+	          success : function(data){
+	             	if(data == '1'){
+	             		toastr.success("同步成功");
+		             }
+	             	if(data == "2"){
+	             		toastr.success("没有启动vCenter巡检");
+	             	}
+	             	if(data == "0"){
+	             		toastr.success("没有添加vCenter");
+	             	}
+	          	},
+				error:function(){
+					alert("错误");
+				}
+	     });
+	}
+	
+	function submitValidate()
+	{
+		var flag = true;
+		var userName = $("#UserName").val();
+		var password = $("#Password").val();
+		var displayName = $("#DisplayName").val();
+		var propertyName = $("#propertyName").val();
+		
+		if(userName == '')
+		{
+			toastr.error('用户名不能为空');
+			flag = false;
+		}
+		/* if(obj.length > 15){
+			toastr.error('用户名过长');
+			return false;
+		}
+		 */
+		else
+		{
+			if( !checkUser(userName))
+			{
+				toastr.error('用户名必须输入英文,数字或下划线并以英文或下划线开头');
+				flag = false;
+			}
+			
+		}
+		
+		if(password == '')
+		{
+			toastr.error('密码必须输入');
+			flag = false;
+		}
+		
+		if(displayName == '')
+		{
+			toastr.error('ip地址不能为空');
+			flag = false;
+		}
+		else{
+			if( !checkDisplay(displayName)){
+				toastr.error('ip地址输入有误');
+				flag = false;
+			}
+		}
+		
+		if(flag){
+		//var url= "?userName="+userName+",password="+password+",displayName="+displayName+",propertyName="+propertyName;
+			$.ajax({
+		          type : "post",
+		          url : "/VCenterConfigs/save",
+		          dataType:"text",
+		          data:{"userName":userName,"password":password,"displayName":displayName,"propertyName":propertyName},
+		          success : function(data){
+		             	if(data == 'OK'){
+		             		toastr.success("创建成功");
+		             		flag = true;
+			             }
+		             	if(data == "OKBEEN"){
+		             		toastr.success("编辑成功");
+		             		flag = true;
+		             	}
+		          	},
+					error:function(){
+						alert("错误");
+					}
+		     });
+		}
+	}
+	
+	function
+	 checkUser(str){
+	    var
+	 re = /^([a-zA-Z_]+)+(\w+[\.]?)*\w+$/;
+	    if(re.test(str)){
+	        return true;
+	    }else{
+	        return false;
+	    }          
+	}
+	
+	function 
+	 checkDisplay(str) {
+	    var re = /^(?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))$/
+	    if (re.test(str)) {
+	    	return true;
+	    } else {
+	    	return false;
+	    }
+	}
+</script>

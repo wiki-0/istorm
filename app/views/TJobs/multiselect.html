@@ -1,0 +1,81 @@
+<head xmlns:float="http://www.w3.org/1999/xhtml">
+    <!-- multiselect -->
+    <link href="@{'/new_public/js/multiselect2side/css/jquery.multiselect2side.css'}" rel="stylesheet">
+    <script src="@{'new_public/js/multiselect2side/js/jquery.js'}"></script>
+    <!-- multiselect -->
+    <script src="@{'new_public/js/multiselect2side/js/jquery.multiselect2side.js'}"></script>
+    <style>
+       .week-css li{display: inline-block;padding:0 20px;border-right:1px solid #ccc;color:#000;}
+       .week-css li a{color:#666;text-decoration: none;}
+       .week-css li a:hover{color:#1ab394;}
+       .tab-div table tr td{width:50px;height:25px;text-align: center;}
+    </style>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var sid = parent.document.getElementById("sid").value;
+            $.ajax({
+                url:"@{TJobs.getScriptGroup()}",
+                data:{sid:sid},
+                success: function(data){
+                    var myData = eval('(' + data + ')');
+                    var table = "";
+                    for (var i = 0; i < myData.length; i++) {
+                        table += "<optgroup label='" + myData[i][0].group + "'>";
+                        for (var n = 0; n < myData[i].length; n++){
+                            table += "<option value='" + myData[i][n].value + "'"+myData[i][n].select+">" + myData[i][n].text + "</option>"
+                        }
+                        table +="</optgroup>";
+                    }
+                    $("#first").html(table);
+                    $('#first').multiselect2side({
+                        optGroupSearch: "脚本分组: "
+                    });
+                }
+            });
+            //还原脚本顺序
+            $.ajax({
+                url:"@{TJobs.getScriptSelect()}",
+                data:{sid:sid},
+                success: function(data){
+                    var myData = eval('(' + data + ')');
+                    for (var i = 0; i < myData.length; i++) {
+                        $("#firstSelectms2side__dx").val(myData[i].value).click();
+                        $(".MoveBottom").click();
+                        $(".MoveBottom").click();//防延迟
+                    }
+                }
+            });
+        });
+        newSelect = function()
+        {
+            $("#usual2").empty();
+            var selsct = "<select name='firstSelect[]' id='first' multiple='multiple' onchange='checklist()'></select>";
+            $("#usual2").html(selsct);
+            $.ajax({
+                url:"@{TJobs.getScriptGroup()}",
+                data:{sid:""},
+                success: function(data){
+                    var myData = eval('(' + data + ')');
+                    var table = "";
+                    for (var i = 0; i < myData.length; i++) {
+                        table += "<optgroup label='" + myData[i][0].group + "'>";
+                        for (var n = 0; n < myData[i].length; n++){
+                            table += "<option value='" + myData[i][n].value + "'"+myData[i][n].select+">" + myData[i][n].text + "</option>"
+                        }
+                        table +="</optgroup>";
+                    }
+                    $("#first").html(table);
+                    $('#first').multiselect2side({
+                        optGroupSearch: "脚本分组: "
+                    });
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+<div id="usual2" class="usual">
+    <select name="firstSelect[]" id='first' multiple='multiple' onchange="checklist()">
+    </select>
+</div>
+</body>

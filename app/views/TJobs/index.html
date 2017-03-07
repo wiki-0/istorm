@@ -1,0 +1,339 @@
+#{extends 'main.html' /}
+<style>
+    iframe {
+        width: 100%;
+        border: 20px;
+        height: 320px;
+    }
+    textarea {
+        resize: none;
+    }
+    .table-responsive {
+        overflow-x: hidden
+    }
+</style>
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2 style="font-size: 0px;"></h2>
+        <ol class="breadcrumb">
+            <li><a href="@{Application.index()}">首页</a></li>
+            <li class="active"><strong>任务配置</strong></li>
+        </ol>
+    </div>
+    <div class="col-lg-2"></div>
+</div>
+<div id="modal-form" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addJobLabel" style="display: none;">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">新增任务</h4>
+            </div>
+            <div class="modal-body">
+                <form id="createTask" class="form-horizontal" action="@{TJobs.saveJob()}" method="post" role="form">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <table class="table table-bordered">
+                                <tbody>
+                                <tr>
+                                    <td width="10%">任务名称：</td>
+                                    <td width="40%"><input type="text" name="tJob.T_JOB_NAME" id="tJob.T_JOB_NAME"
+                                                           class="form-control" maxlength="20"></td>
+                                    <td width="10%">可以接收到报告的用户组：</td>
+                                    <td width="40%"><select class="form-control" name="distributeGroup" id="distributeGroup">
+                                    </select>
+                                </tr>
+                                <tr>
+                                    <td>任务描述：</td>
+                                    <td colspan="3">
+                                        <textarea class="form-control" rows="3" name="tJob.T_JOB_DESC" id="tJob.T_JOB_DESC" maxlength="400"></textarea>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="10%">可以编辑的用户组：</td>
+                                    <td width="40%"><select class="form-control" name="editGroup"  id="editGroup">
+                                    </select>
+                                    <td width="10%">可以查看的用户组：</td>
+                                    <td width="40%"><select class="form-control" name="checkGroup"  id="checkGroup">
+                                    </select>
+                                </tr>
+                                <tr>
+                                    <td width="10%">执行时间：</td>
+                                    <td width="40%"><input type="text" name="tJob.T_JOB_SCHEDULES"
+                                                           id="tJob.T_JOB_SCHEDULES"
+                                                           readonly = "readonly" class="form-control"></td>
+                                    <td width="10%">是否生成告警：</td>
+                                    <td width="40%"><select class="form-control" name="tJob.T_ALARM" id="tJob.T_ALARM">
+                                        <option value="true">是</option>
+                                        <option value="false">否</option>
+                                    </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>执行时间生成：</td>
+                                    <td colspan="3" style="margin:0;padding:0;height:300px;overflow: hidden">
+                                        <iframe id="cronFram" src="@{TJobs.cronmaker()}" scrolling="yes" style="height: auto;height:300px;"></iframe>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>选择脚本：</td>
+                                    <td colspan="3">
+                                        <iframe id="multiselect" src="@{TJobs.multiselect()}" scrolling="yes" style="height: auto;height:180px;"></iframe>
+                                        <input type="hidden" id="sList" name="sList">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" align="center">
+                                        <span><button class="btn btn-primary" onclick="return submitValidate()">确定</button></span>
+                                        <span><button class="btn btn-primary" type="reset" onclick="newJob()">清空</button></span>
+                                        <input  type="hidden" id="jodId" name="jodId">
+                                        <input  type="hidden" id="sid" name="sid">
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <div class="ibox">
+            <div class="ibox-title">
+                <h5>任务管理列表</h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link"> <i class="fa fa-chevron-up"></i></a> <a class="collapse-link"> </a>
+                </div>
+            </div>
+            <div class="ibox-content">
+                <table class="table table-bordered">
+                    <tbody>
+                    <tr>
+                        <td width="10%" align="right"><span class="sel-tit">任务名称：</span></td>
+                        <td width="20%">
+                            <input type="text" name="T_JOB_NAME" id="T_JOB_NAME" class="form-control" maxlength="20">
+                        </td>
+                        <td width="10%" align="right"><span class="sel-tit">是否生成告警：</span></td>
+                        <td width="20%"><select id="T_ALARM" class="form-control" name="T_ALARM">
+                            <option value="">全部</option>
+                            <option value="true">是</option>
+                            <option value="false">否</option>
+                        </select>
+                        </td>
+                        <td width="10%" align="right"><span class="sel-tit">发布状态：</span></td>
+                        <td width="20%"><select id="T_RELEASE" class="form-control" name="T_RELEASE">
+                            <option value="">全部</option>
+                            <option value="true">已发布</option>
+                            <option value="false">未发布</option>
+                        </select>
+                        </td>
+                        <td>
+                            <input type="button" name="name" value="查询" class="btn btn-primary" onclick="getJobList()">
+                        </td>
+                        <td>
+                            <input type="button" name="name" value="新增" class="btn btn-primary" onclick="newJob()">
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            <div id="crudListTable">
+			#{crud.tsmtable fields:['任务名称','执行计划','是否生成告警','任务描述','执行脚本','可以编辑的用户组','状态','删除'] }
+			#{/crud.tsmtable}
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+<div id="modal-sizes-1" class="modal fade" tabindex="-1" role="dialog" style="display: none;">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </button>
+                <h4 class="modal-title">是否删除:</h4>
+            </div>
+            <div class="modal-body">请确认是否删除,删除可能级联巡检结果?</div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="deleteJobById()">确认</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function(){
+        getJobList();
+    });
+    getGroup = function () {
+        $.ajax({
+            url:"@{TJobs.getGroup()}",
+            success: function(data){
+                var myData = eval('(' + data + ')');
+                var opt = "";
+                for (var i = 0; i < myData.length; i++) {
+                    opt += "<option value='" + myData[i].id + "'>" + myData[i].name + "</option>";
+                }
+                if (opt == ""){
+                    opt = "<option value=''>未选择</option>";
+                }
+                 $("#editGroup").html(opt);
+                $("#checkGroup").html(opt);
+                $("#distributeGroup").html(opt);
+            }
+        });
+    }
+    /**新增任务按钮*/
+    newJob = function()
+    {
+        getGroup();
+        document.getElementById("createTask").reset();//#createTask form表单的id
+        document.getElementById('cronFram').contentWindow.location.reload(true);
+        $("#exampleModalLabel").html("新增任务");
+        document.getElementById("sid").value = "";
+        document.getElementById('multiselect').contentWindow.location.reload(true);
+        $('#modal-form').modal('show');//弹出新增任务 模态框
+    }
+    //表单验证
+    submitValidate = function()
+    {
+        var flag = true;
+        var distributeGroup = document.getElementById("distributeGroup").value;
+        if (distributeGroup == null || distributeGroup == ""){
+            toastr.error('分组为空，不能创建任务！');
+            flag = false;
+        }
+        var T_JOB_NAME = document.getElementById("tJob.T_JOB_NAME").value;
+        if (T_JOB_NAME == null || T_JOB_NAME == ""){
+            toastr.error('请输入任务名称！');
+            flag = false;
+        }
+        if (T_JOB_NAME.length >= 20){
+            toastr.error('任务名称不能超过20个字符！');
+            flag = false;
+        }
+        var T_JOB_DESC = document.getElementById("tJob.T_JOB_DESC").value;
+        if (T_JOB_DESC == null || T_JOB_DESC == ""){
+            toastr.error('请输入任务描述！');
+            flag = false;
+        }
+        var T_JOB_SCHEDULES = document.getElementById("tJob.T_JOB_SCHEDULES").value;
+        if (T_JOB_SCHEDULES == null || T_JOB_SCHEDULES == ""){
+            toastr.error('请生成执行时间！');
+            flag = false;
+        }
+        var sel = $("#multiselect").contents().find("#first").val();//方法2
+        if (sel == null || sel == ""){
+            toastr.error('请选择脚本！');
+            flag = false;
+        }
+        document.getElementById("sList").value = sel;
+        return flag;
+    }
+
+    showJobDetail = function(id)
+    {
+        getGroup();
+        document.getElementById("sid").value = id;
+        document.getElementById('cronFram').contentWindow.location.reload(true);
+        document.getElementById('multiselect').contentWindow.location.reload(true);
+        $.ajax({
+            url:"@{TJobs.editJob()}",
+            data:{id:id},
+            success: function(data){  //返回的数据用于填充表单
+                var dataObj=eval(data);
+                document.getElementById("tJob.T_JOB_NAME").value = dataObj[0].T_JOB_NAME;
+                document.getElementById("tJob.T_JOB_DESC").value = dataObj[0].T_JOB_DESC;
+                if (dataObj[0].T_ALARM){  //用于填充select 下拉框
+                    document.getElementById("tJob.T_ALARM")[0].selected=true;
+                }else {
+                    document.getElementById("tJob.T_ALARM")[1].selected=true;
+                }
+                document.getElementById("tJob.T_JOB_SCHEDULES").value = dataObj[0].T_JOB_SCHEDULES;
+                document.getElementById("jodId").value = dataObj[0].id;
+                $("#selector").val(dataObj[0].T_JOB_STATUS);
+                $("#distributeGroup").val(dataObj[0].DISTRIBUTE);
+                $("#editGroup").val(dataObj[0].MODIFY);
+                $("#checkGroup").val(dataObj[0].SHOW);
+                $("#exampleModalLabel").html("编辑任务");
+                $('#modal-form').modal('show');
+            }
+        });
+    }
+    var resultDataTable;
+
+    var idinfo = '';
+    /**点击任务的删除按钮后--触发，同时弹出模态框 #modal-sizes-1*/
+    function setJobById(id)
+    {
+        idinfo = id;  //把job.id传递给全局变量，删除任务时使用。
+    }
+    /**#modal-sizes-1 模态框里的 删除按钮*/
+    function deleteJobById(id)
+    {
+        var url="/TJobs/deleteJob?id="+idinfo;
+        $.post(url, function(data){
+            if(data=='true')
+            {
+                $("#"+idinfo+"del").html('已删除');
+                $("#"+idinfo+"del").attr("disabled","disabled");
+            }
+        });
+        $("#modal-sizes-1").modal('hide');
+    }
+    /**发布任务*/
+    function releaseJobById(id)
+    {
+        var url="/TJobs/releaseJob?id="+id;
+        $.post(url, function(data){
+            if(data == "true"){
+                toastr.success('提示：该任务不会在分层显示','撤销成功');
+                $("#"+id+"rel").html('发布');
+            }
+            if(data == "error"){
+                toastr.error('任务已挂载到分层不能撤销发布！');
+            }
+            if(data=='false')
+            {
+                toastr.success('提示：发布后可以在分层看到该任务,挂载到分层的任务不可以撤销发布！','发布成功');
+                $("#"+id+"rel").html('撤销发布');
+            }
+        });
+    }
+    function getJobList(){
+        var jobName =  document.getElementById("T_JOB_NAME").value;
+        var alarm =  document.getElementById("T_ALARM").value;
+        var release =  document.getElementById("T_RELEASE").value;
+        var $searchResult = $('#crudListTable table');
+        if (resultDataTable) {
+            resultDataTable.fnClearTable(false);
+            $searchResult.dataTable().fnDestroy();
+        }  else {
+            $searchResult.show();
+        }
+        resultDataTable = $('#crudListTable table').dataTable({
+            "bProcessing": true,
+            "bServerSide": false,
+            "iDisplayLength": 20,
+            "bLengthChange": false,
+            "sPaginationType":"full_numbers",
+            "oLanguage": {
+                "sZeroRecords": "没有任何数据",
+                "oPaginate": {
+                    "sFirst":"首页",
+                    "sPrevious":"上一页",
+                    "sNext":"下一页",
+                    "sLast":"最后一页"
+                }
+            },
+            "sAjaxSource": '/TJobs/getJobList?jobName='+jobName+"&alarm="+alarm+"&release="+release,
+            "fnServerParams": function ( aoData ) {
+                $(".dataTables_info").hide();
+                $(".dataTables_filter").hide();
+                aoData.push( { "name": "Fields", "value": "T_JOB_NAME, T_JOB_SCHEDULES,T_ALARM,T_JOB_DESC,SCRIPT ,REGROUP ,T_RELEASE,DELETE"} );
+            }
+        });
+    }
+</script>

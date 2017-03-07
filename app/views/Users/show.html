@@ -1,0 +1,331 @@
+#{extends 'example.html' /}
+<style type="text/css">
+.crudDelete button {
+	color: #fff;
+	border: none;
+	margin: 0;
+	position: fixed;
+	top: 0;
+	right: 17;
+	-moz-border-radius: 8px;
+	-webkit-border-radius: 8px;
+	cursor: pointer;
+}
+
+.crudReturn button {
+	border: none;
+	margin: 0;
+	position: fixed;
+	top: 0;
+	right: 87;
+	-moz-border-radius: 8px;
+	-webkit-border-radius: 8px;
+	cursor: pointer;
+}
+
+li {
+	list-style-type: none;
+	margin-left: -30px;
+}
+.objectForm .form-group{height:50px;}
+.objectForm .form-group label{position:relative;top:10px;}
+
+</style>
+<script type="text/javascript">
+
+	$(document).ready(function(){
+		
+	});
+
+	submitValidate = function()
+	{
+		var flag = true;
+		var obj = $("#UserName").val();
+		if(obj == '')
+		{
+			toastr.error('必须输入英文,数字或下划线并以英文或下划线开头');
+			flag = false;
+		}
+		else
+		{
+			if( !checkUser(obj))
+			{
+				toastr.error('必须输入英文,数字或下划线并以英文或下划线开头');
+				flag = false;
+			}
+		}
+
+		obj = $("#Password").val();
+		if(obj == '')
+		{
+			toastr.error('密码必须输入');
+			flag = false;
+		}
+		obj = $("#DisplayName").val();
+		if(obj == '')
+		{
+			toastr.error('显示名称必须输入');
+			flag = false;
+		}
+		
+		obj = $("#Department").val();
+		if(obj == '')
+		{
+			toastr.error('所属部门必须输入');
+			flag = false;
+		}
+		var obj = $("#TELPHONE").val();
+		if(obj == ''){
+			toastr.error('手机格式不正确');
+			flag = false;
+		}else{
+			if( !checkMobile(obj))
+			{
+				toastr.error('手机格式不正确');
+				flag = false;
+			}
+		}
+		$("#TelphoneInput").hide();
+		obj = $("#EMAIL").val();
+		if(obj == ''){
+			toastr.error('邮箱格式不正确');
+			flag = false;
+		}else{
+			if( !checkEmail(obj))
+			{
+				toastr.error('邮箱格式不正确');
+				flag = false;
+			}
+		}
+		$("#EmailInput").hide();
+		
+		var userNameverification = $("#UserName").val();
+		var  userManager = $("#authorityManage").val();
+		console.log(${object.id});
+		var url= "@{Users.verificationUpdate()}";
+		$.ajax({
+	          type : "post",
+	          url : url,
+	          async : false,
+	          success : function(data){
+	        	  var myData = eval('(' + data + ')');
+	                for (var i = 0; i < myData.length; i++) {
+	                	if($("#UserName").val() != "${object.T_USER_NAME}"){
+	                		
+	    				if($("#UserName").val() == myData[i].T_USER_NAME){
+	    					flag = false;
+	    					toastr.error('用户名已经存在，请更换名称！ ');
+	    				}
+	    				
+	    			}
+	    			}
+	          		}
+	          });
+		 return flag;
+	}
+	function
+	 checkUser(str){
+	    var
+	 re = /^[a-zA-z]\w{2,15}$/;
+	    if(re.test(str)){
+	        return true;
+	    }else{
+	        return false;
+	    }          
+	}
+	
+	function
+	 checkEmail(str){
+	    var
+	 re = /^(\w-*\.*)+@(\w-?)+(\.\w{2,})+$/
+	    if(re.test(str)){
+	       	return true;
+	    }else{
+			return false;
+	    }
+	}
+	
+	function 
+	 checkMobile(str) {
+	    var 
+	 re = /^1\d{10}$/
+	    if (re.test(str)) {
+	    	return true;
+	    } else {
+	    	return false;
+	    }
+	}
+	
+	$(document).ready(
+		function () {
+		var userName = $("#UserName").val();
+		if (userName == "admin") {
+			$("#btnDelete").hide();
+			$("#btnSave").hide();
+		}
+		});
+	</script>
+<div id="crudShow" class="${type.name}">
+	<div class="objectForm" style="padding-top: 15px">
+		#{form action:@Users.update(object._key()),enctype:'multipart/form-data'} #{crud.form } #{crud.custom
+		'T_USER_NAME'}
+		<div class="form-group dark">
+				<label class="control-label"
+					style="position: relative; top: 8px; padding-left: 200px">用户账户：</label>
+			<div class="col-md-9 controls" style="width: 50%; float: left;">
+				<td width="40%"><input type="text" maxlength=20 class="form-control"
+					style="margin: 0; padding: 0; text-indent: 1em;" id="UserName"
+					name="UserName" value="${object.T_USER_NAME}"></input>
+				<label id="UserNameInput"  style="display:none;"><font color="red">*必须输入英文,数字或下划线并以英文或下划线开头</font></label>
+			</td>
+			</div>
+			<div style="clear: both"></div>
+		</div>
+		#{/crud.custom} #{crud.custom 'T_USER_PASSWORD'}
+		<div class="form-group dark">
+				<label class="control-label"
+					style="position: relative; top: 8px; padding-left: 200px">用户密码：</label>
+			<div class="col-md-9 controls" style="width: 50%; float: left;">
+				<td width="40%"><input type="password" maxlength=20 class="form-control"
+					style="margin: 0; padding: 0; text-indent: 1em;" id="Password"
+					name="Password" value="${object.T_USER_PASSWORD}"></input>
+					<label id="PasswordInput" style="display:none;"><font color="red">*必须输入</font></label>
+				</td>
+			</div>
+			<div style="clear: both"></div>
+		</div>
+		#{/crud.custom} #{crud.custom 'T_USER_DISPLAY_NAME'}
+		<div class="form-group dark">
+				<label class="control-label"
+					style="position: relative; top: 8px; padding-left: 200px">显示名称：</label>
+			<div class="col-md-9 controls" style="width: 50%; float: left;">
+				<td width="40%"><input type="text" maxlength=20 class="form-control"
+					style="margin: 0; padding: 0; text-indent: 1em;" id="DisplayName"
+					name="DisplayName" value="${object.T_USER_DISPLAY_NAME}"></input>
+					<label id="DisplayNameInput" style="display:none;"><font color="red">*必须输入</font></label>
+				</td>
+			</div>
+			<div style="clear: both"></div>
+		</div>
+		#{/crud.custom} #{crud.custom 'T_USER_DEPARTMENT'}
+		<div class="form-group dark">
+				<label class="control-label"
+					style="position: relative; top: 8px; padding-left: 200px">所属部门：</label>
+			<div class="col-md-9 controls" style="width: 50%; float: left;">
+				<td width="40%">
+					<!-- <input type="text" maxlength=20 class="form-control"
+						style="margin: 0; padding: 0; text-indent: 1em;" id="Department"
+						name="Department" value="${object.T_USER_DEPARTMENT}">
+					</input> -->
+					<select maxlength=20 class="form-control"
+						style="margin: 0; padding: 0; text-indent: 1em;" id="Department"
+						name="Department" value="${object.T_USER_DEPARTMENT}">
+						
+						<option>未选择</option>
+						#{list items: models.DataDictionary.examine(), as:'info'}
+							<option>${info.name}</option>
+						#{/list}
+					</select>
+					<label id="DepartmentInput" style="display:none;"><font color="red">*必须输入</font></label>
+					</td>
+			</div>
+			<div style="clear: both"></div>
+		</div>
+		#{/crud.custom} #{crud.custom 'T_USER_TELPHONE'}
+		<div class="form-group dark">
+				<label class="control-label"
+					style="position: relative; top: 8px; padding-left: 200px">手机号码：</label>
+			<div class="col-md-9 controls" style="width: 50%; float: left;">
+				<td width="40%"><input type="text" maxlength=20 class="form-control"
+					style="margin: 0; padding: 0; text-indent: 1em;" id="TELPHONE"
+					name="TELPHONE" value="${object.T_USER_TELPHONE}"></input>
+					<label id="TelphoneInput" style="display:none;"><font color="red">*手机格式不正确</font></label>
+				</td>
+			</div>
+			<div style="clear: both"></div>
+		</div>
+		#{/crud.custom} #{crud.custom 'T_USER_MAIL'}
+		<div class="form-group dark">
+				<label class="control-label"
+					style="position: relative; top: 8px; padding-left: 200px">电子邮箱：</label>
+			<div class="col-md-9 controls" style="width: 50%; float: left;">
+				<td width="40%"><input type="text" maxlength=50 class="form-control"
+					style="margin: 0; padding: 0; text-indent: 1em;" id="EMAIL"
+					name="EMAIL" value="${object.T_USER_MAIL}"></input>
+					<label id="EmailInput" style="display:none;"><font color="red">*邮箱格式不正确</font></label>
+								 </td>
+			</div>
+			<div style="clear: both"></div>
+		</div>
+		#{/crud.custom} #{crud.custom 'T_USER_PERMISSION'}
+		<!-- <div class="form-group dark">
+				<label class="control-label"
+					style="position: relative; top: 8px; padding-left: 200px">权&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;限：</label>
+			<div class="col-md-9 controls" style="width: 50%; float: left;">
+				<select id="authorityManage" class="form-control"
+					name="authorityManage" onchange="selectUserToApp();">
+					<option value="manager" %{
+						if(object.T_USER_PERMISSION==
+						"manager"){
+					}%
+					 		selected="selected"%{
+						}
+					}%
+					>&{'Manager'}</option>
+					<option value="operator" %{
+						if(object.T_USER_PERMISSION==
+						"operator"){
+					}%
+							selected="selected"%{
+						}
+					}%
+					>&{'Operator'}</option>
+				</select>
+			</div>
+		</div> -->
+		#{/crud.custom}
+		 #{/crud.form}
+		<div class="form-group" style="margin-bottom: 0;">
+			<div class="col-sm-offset-5 col-sm-8" style="text-align: left;margin-top:-130px">
+		            <button class="btn btn-primary" name="save" id="btnSave" onclick="return submitValidate();" >确定</button>
+			</div>
+		</div>
+		#{/form}
+	</div>
+	<div>
+	<div class="crudReturn">
+		<button class="btn btn-primary" onclick="history.go(-1);">
+			<i class="fa fa-chevron-left">&nbsp;返回</i>
+		</button>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	</div>
+	<div class="crudDelete">
+		<button class="btn btn-danger" data-toggle="modal"
+			data-target="#modal-sizes-1" id="btnDelete">
+			<i class="fa fa-times">&nbsp;&{'crud.delete', type.modelName}</i>
+			</button>
+	</div>
+	</div>
+	<div id="modal-sizes-1" class="modal fade" tabindex="-1" role="dialog"
+		style="display: none;">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-hidden="true">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					</button>
+					<h4 class="modal-title">是否删除用户:</h4>
+				</div>
+				<div class="modal-body">请确认是否删除用户,删除可能级联巡检结果?</div>
+				<div class="modal-footer">
+					<form action="@{delete(object._key())}" method="post" role="form">
+						<button class="btn btn-danger">确认</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+

@@ -1,0 +1,481 @@
+#{extends 'main.html' /} #{set title:'IStorm Patrol' /}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2 style="font-size: 20px;"></h2>
+        <ol class="breadcrumb">
+            <li><a href="@{Application.index()}">首页</a></li>
+            <li><a>脚本对象管理</a></li>
+            <li class="active"><strong>脚本配置</strong></li>
+        </ol>
+    </div>
+    <div class="col-lg-2"></div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="ibox">
+            <div class="ibox-title">
+                <h5>脚本列表</h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="ibox-content">
+                <table class="table table-bordered">
+                    <tbody>
+                        <tr>
+                            <form class="form-control" action="@{ScriptManage.saveFile()}" method="post" enctype="multipart/form-data">
+                                <td width="8%" align="right">
+                                    <span class="sel-tit">导入脚本：</span>
+                                </td>
+                                <td width="17%">
+                                    <input type="file" name="file" id="file" class="form-control">
+                                </td>
+                                <td colspan="6">
+                                    <input type="submit" value="导入" class="btn btn-primary" onclick="return judgeFileType()" id="btnImport">
+                                </td>
+                                <td>
+                                    <input type="button" class="btn btn-primary" value="新增" id="btnNewScript" onclick="newScript()">
+                                </td>
+                            </form>
+
+                        </tr>
+                        <tr>
+                            <td width="8%" align="right">
+                                <span class="sel-tit">脚本名称：</span>
+                            </td>
+                            <td width="17%">
+                                <input type="text" id="T_SCRIPT_NAMESearch" name="T_SCRIPT_NAME" class="form-control" maxlength="20">
+                            </td>
+                            <td width="8%" align="right">
+                                <span class="sel-tit">脚本分组：</span>
+                            </td>
+                            <td width="17%">
+                                <select id="tScriptGroupSearch" name="T_SCRIPT_GROUP_ID" class="form-control">
+                                </select>
+                            </td>
+                            <td width="8%" align="right">
+                                <span class="sel-tit">创建人：</span>
+                            </td>
+                            <td width="17%">
+                                <select id="T_SCRIPT_USERSearch" name="T_SCRIPT_USER" class="form-control">
+                                </select>
+                            </td>
+                            <td width="8%" align="right">
+                                <span class="sel-tit"> 脚本类型：</span>
+                            </td>
+                            <td width="17%">
+                                <select id="T_SCRIPT_TYPESearch" name="T_SCRIPT_TYPE" class="form-control">
+                                    <option value="">全部</option>
+                                    <option value="bat">bat脚本</option>
+                                    <option value="vbs">vbs脚本</option>
+                                    <option value="powershell">powershell脚本</option>
+                                    <option value="shell">shell脚本</option>
+                                    <option value="command">command</option>
+                                </select>
+                            </td>
+                            <td width="10%">
+                                <input type="button" value="查询" class="btn btn-primary" onclick="queryNodeInfo()">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <iframe id="ScriptManageList" src="@{ScriptManage.list()}" style="width: 100%; height: 800px; border: 0px;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal-form" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addJobLabel" style="display: none;">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">新增脚本</h4>
+            </div>
+            <div class="modal-body">
+                <form id="createScript" class="form-horizontal" action="@{ScriptManage.saveScriptCommand()}" method="post" role="form">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <table class="table table-bordered">
+                                <tbody>
+                                    <tr>
+                                        <td width="10%">脚本名称：</td>
+                                        <td width="40%">
+                                            <input type="text" class="form-control" id="T_SCRIPT_NAME" name="tScript.T_SCRIPT_NAME" onblur="onlyName()" maxlength="20">
+                                        </td>
+                                        <td width="10%">脚本分组：</td>
+                                        <td colspan="3">
+                                            <select class="form-control" id="T_SCRIPT_GROUP_ID" name="tScript.T_SCRIPT_GROUP_ID">
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>脚本文件名称：</td>
+                                        <td>
+                                            <input type="text" class="form-control" id="T_SCRIPT_FILENAME" name="tScript.T_SCRIPT_FILENAME" maxlength="20">
+                                        </td>
+                                        <td width="10%">脚本类型：</td>
+                                        <td colspan="3">
+                                            <select class="form-control" id="T_SCRIPT_TYPE" name="tScript.T_SCRIPT_TYPE">
+                                                <option value="bat">bat脚本</option>
+                                                <option value="vbs">vbs脚本</option>
+                                                <option value="ps1">powershell脚本</option>
+                                                <option value="sh">shell脚本</option>
+                                                <option value="command">command</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td width="10%">脚本内容：</td>
+                                        <td colspan="5">
+                                            <textarea name="tScript.T_SCRIPT_COMMAND" id="T_SCRIPT_COMMAND" rows="8" cols="80"></textarea>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td width="10%">查看权限用户组：</td>
+                                        <td width="40%">
+                                            <select class="form-control" id="T_USER_GROUP_ID" name="tScript.T_USER_GROUP_ID">
+                                                <option value="1">1</option>
+                                            </select>
+                                        </td>
+                                        <td width="10%">
+                                            阈值或关键字：
+                                        </td>
+                                        <td width="40%" colspan="3">
+                                            <select class="form-control" id="T_ALARM_THRESHOLD_TYPE" name="tScript.T_ALARM_THRESHOLD_TYPE" onchange="valueChange()">
+                                                <option value="0">阈值</option>
+                                                <option value="1">关键字</option>
+                                            </select>
+                                            <input type="text" id="T_SCRIPT_USER" name="tScript.T_SCRIPT_USER" value="${session.get(" displayName ")}" hidden>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" id="T_ALARM_LEVEL1" name="T_ALARM_LEVEL1" value="严重" class="form-control">
+                                        </td>
+                                        <td>
+                                            <input type="text" id="T_ALARM_THRESHOLD1" name="T_ALARM_THRESHOLD1" class="form-control" placeholder="严重 关键字或阈值" maxlength="20">
+                                        </td>
+                                        <td>
+                                            关系：
+                                        </td>
+                                        <td width="17%">
+                                            <select id="T_ALARM_RELATION1" name="T_ALARM_RELATION1" class="form-control">
+                                            </select>
+                                        </td>
+                                        <td>
+                                            展示为：
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control" value="红色" readonly>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" id="T_ALARM_LEVEL2" name="T_ALARM_LEVEL2" value="主要" class="form-control">
+                                        </td>
+                                        <td>
+                                            <input type="text" id="T_ALARM_THRESHOLD2" name="T_ALARM_THRESHOLD2" class="form-control" placeholder="主要 关键字或阈值" maxlength="20">
+                                        </td>
+                                        <td>
+                                            关系：
+                                        </td>
+                                        <td width="17%">
+                                            <select id="T_ALARM_RELATION2" name="T_ALARM_RELATION2" class="form-control">
+                                            </select>
+                                        </td>
+                                        <td>
+                                            展示为：
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control" value="橙色" readonly>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" id="T_ALARM_LEVEL3" name="T_ALARM_LEVEL3" value="次要" class="form-control">
+                                        </td>
+                                        <td>
+                                            <input type="text" id="T_ALARM_THRESHOLD3" name="T_ALARM_THRESHOLD3" class="form-control" placeholder="次要 关键字或阈值" maxlength="20">
+                                        </td>
+                                        <td>
+                                            关系：
+                                        </td>
+                                        <td width="17%">
+                                            <select id="T_ALARM_RELATION3" name="T_ALARM_RELATION3" class="form-control">
+                                            </select>
+                                        </td>
+                                        <td>
+                                            展示为：
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control" value="黄色" readonly>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" id="T_ALARM_LEVEL4" name="T_ALARM_LEVEL4" value="提示" class="form-control">
+                                        </td>
+                                        <td>
+                                            <input type="text" id="T_ALARM_THRESHOLD4" name="T_ALARM_THRESHOLD4" class="form-control" placeholder="提示 关键字或阈值" maxlength="20">
+                                        </td>
+                                        <td>
+                                            关系：
+                                        </td>
+                                        <td width="17%">
+                                            <select id="T_ALARM_RELATION4" name="T_ALARM_RELATION4" class="form-control">
+                                            </select>
+                                        </td>
+                                        <td>
+                                            展示为：
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control" value="蓝色" readonly>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td colspan="6" class="text-center">
+                                            <button class="btn btn-primary" onclick="return submitValidate()">确定</button>
+                                            <button class="btn btn-primary" onclick="return clearValue()">清空</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toastrStr(str) {
+        toastr.error(str);
+    }
+
+    function clearValue() {
+        $("#createScript")[0].reset();
+        $("#T_ALARM_THRESHOLD_TYPE").trigger('change');
+
+        return false;
+    }
+
+    function onlyName() {
+        var url2 = "@{ScriptManage.getScript()}";
+        $.post(url2, function(data) {
+            var myData = eval('(' + data + ')');
+            for (var i = 0; i < myData.length; i++) {
+                if ($("#T_SCRIPT_NAME").val() == myData[i].T_SCRIPT_NAME) {
+                    toastr.error('脚本名称已存在，请更换名称!');
+                }
+            }
+        });
+    }
+
+
+    function judgeFileType() {
+        var filename = $("#file").val();
+        if (filename == "") {
+            toastr.error('未选择任何文件！');
+            return false;
+        }
+        if (filename != "") {
+            var fileNames = filename.split('.');
+            if (fileNames.length <= 1) {
+                toastr.error('所选文件没有后缀名！');
+            } else {
+                var er = fileNames[fileNames.length - 1];
+                if (!(er == "bat" || er == "vbs" || er == "ps1" || er == "sh")) {
+                    toastr.error('文件类型不对！');
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    function queryNodeInfo() {
+        var T_SCRIPT_NAME = $("#T_SCRIPT_NAMESearch").val();
+        var T_SCRIPT_GROUP_ID = $("#tScriptGroupSearch").val();
+        var T_SCRIPT_USER = $("#T_SCRIPT_USERSearch").val();
+        var T_SCRIPT_TYPE = $("#T_SCRIPT_TYPESearch").val();
+        document.getElementById('ScriptManageList').src = "@{ScriptManage.list()}?T_SCRIPT_NAME=" + T_SCRIPT_NAME +
+            "&T_SCRIPT_GROUP_ID=" + T_SCRIPT_GROUP_ID +
+            "&T_SCRIPT_USER=" + T_SCRIPT_USER +
+            "&T_SCRIPT_TYPE=" + T_SCRIPT_TYPE;
+    }
+
+    function newScript() {
+        document.getElementById("createScript").reset();
+        $('#modal-form').modal('show');
+    }
+
+    function submitValidate() {
+        var flag = true;
+
+        var obj = $("#T_SCRIPT_NAME").val();
+        if (obj == '') {
+            toastr.error('脚本名称不能为空！');
+            flag = false;
+        }
+        var obj = $("#T_SCRIPT_FILENAME").val();
+        if (obj == '') {
+            toastr.error('脚本文件名称不能为空！');
+            flag = false;
+        }
+        var obj = $("#T_SCRIPT_COMMAND").val();
+        if (obj == '') {
+            toastr.error('脚本内容不能为空！');
+            flag = false;
+        }
+
+        var url2 = "@{ScriptManage.getScript()}";
+        $.ajax({
+            type: "post",
+            url: url2,
+            async: false,
+            success: function(data) {
+                var myData = eval('(' + data + ')');
+                for (var i = 0; i < myData.length; i++) {
+                    if ($("#T_SCRIPT_NAME").val() == myData[i].T_SCRIPT_NAME) {
+                        toastr.error('脚本名称已存在，请更换名称!');
+                        flag = false;
+                    }
+                }
+            }
+        });
+
+        return flag;
+    }
+
+    function valueChange() {
+        var T_ALARM_THRESHOLD_TYPE = $("#T_ALARM_THRESHOLD_TYPE").val();
+        if (T_ALARM_THRESHOLD_TYPE == "0") {
+            var opt0 = '';
+            opt0 += "<option value='<'>&lt;</option>"
+            opt0 += "<option value='<＝'>&lt;=</option>"
+            opt0 += "<option value='='>=</option>"
+            opt0 += "<option value='>='>&gt;=</option>"
+            opt0 += "<option value='>'>&gt;</option>"
+            opt0 += "<option value='!='>!=</option>"
+
+            $("#T_ALARM_RELATION1").html(opt0);
+            $("#T_ALARM_RELATION2").html(opt0);
+            $("#T_ALARM_RELATION3").html(opt0);
+            $("#T_ALARM_RELATION4").html(opt0);
+        }
+        if (T_ALARM_THRESHOLD_TYPE == "1") {
+            var opt1 = '';
+            opt1 += "<option value='like'>like</option>"
+            opt1 += "<option value='and'>and</option>"
+            opt1 += "<option value='or'>or</option>"
+            opt1 += "<option value='not'>not</option>"
+
+            $("#T_ALARM_RELATION1").html(opt1);
+            $("#T_ALARM_RELATION2").html(opt1);
+            $("#T_ALARM_RELATION3").html(opt1);
+            $("#T_ALARM_RELATION4").html(opt1);
+
+        }
+    }
+
+    function licenseLimit() {
+        $("#btnNewScript").attr("disabled", false);
+        $("#btnImport").attr("disabled", false);
+
+        var url3 = "@{ScriptManage.getScriptLength()}";
+
+        $.post(url3, function(data) {
+            var myData = eval('(' + data + ')');
+            var sl = myData.ScriptLength;
+            var status = myData.LicenseStatus;
+            if (sl >= 1 && status != "1") {
+                $("#btnNewScript").attr("disabled", true);
+                $("#btnImport").attr("disabled", true);
+                toastr.error('未验证，只能添加一个脚本！');
+            }
+        });
+    }
+
+    $(document).ready(
+        function() {
+            $("#btnImport").attr("disabled", false);
+            $("#btnNewScript").attr("disabled", false);
+
+            var url = "@{ScriptManage.getScriptGroup()}";
+            var url2 = "@{ScriptManage.getUser()}";
+
+            var url4 = "@{ScriptManage.getUserGroup}";
+            var url5 = "@{ScriptManage.getUserInGroup()}";
+
+            $.post(url, function(data) {
+                var myData = eval('(' + data + ')');
+                var opt = '';
+                opt += "<option value=''>全部</option>";
+                for (var i = 0; i < myData.length; i++) {
+                    opt += "<option value='" + myData[i].T_SCRIPT_GROUP_ID + "'>" + myData[i].T_SCRIPT_GROUP_NAME + "</option>";
+                }
+                $("#tScriptGroupSearch").html(opt);
+                $("#T_SCRIPT_GROUP_ID").html(opt);
+            });
+            $.post(url2, function(data) {
+                var myData = eval('(' + data + ')');
+                opt = '';
+                opt += "<option value=''>全部</option>";
+                for (var i = 0; i < myData.length; i++) {
+                    opt += "<option value='" + myData[i].T_USER_DISPLAY_NAME + "'>" + myData[i].T_USER_DISPLAY_NAME + "</option>";
+                }
+                $("#T_SCRIPT_USERSearch").html(opt);
+            });
+
+            $.post(url4, function(data) {
+                var myData = eval('(' + data + ')');
+                opt = '';
+                opt += "<option value=''>未分组</option>";
+                for (var i = 0; i < myData.length; i++) {
+                    opt += "<option value='" + myData[i].T_GROUPT_ID + "'>" + myData[i].T_GROUP_NAME + "</option>";
+                }
+                $("#T_USER_GROUP_ID").html(opt);
+                $("#SHOW_T_USER_GROUP_ID").html(opt);
+            });
+
+            $.post(url5, function(data) {
+                var myData = eval('(' + data + ')');
+                var str = myData.status;
+                var username = "${session.get('username')}";
+
+                if (username != "admin" && str == "false") {
+                    document.getElementById('ScriptManageList').src = "@{ScriptManage.list()}?T_SCRIPT_TYPE=" + "BugHiding";
+                    $("#btnImport").attr("disabled", true);
+                    $("#btnNewScript").attr("disabled", true);
+                    toastr.error("您不在任何用户组,无法查看脚本和新增脚本！");
+                }
+            });
+
+            var opt0 = '';
+            opt0 += "<option value='<'>&lt;</option>"
+            opt0 += "<option value='<＝'>&lt;=</option>"
+            opt0 += "<option value='='>=</option>"
+            opt0 += "<option value='>='>&gt;=</option>"
+            opt0 += "<option value='>'>&gt;</option>"
+            opt0 += "<option value='!='>!=</option>"
+
+            $("#T_ALARM_RELATION1").html(opt0);
+            $("#T_ALARM_RELATION2").html(opt0);
+            $("#T_ALARM_RELATION3").html(opt0);
+            $("#T_ALARM_RELATION4").html(opt0);
+
+        });
+</script>
